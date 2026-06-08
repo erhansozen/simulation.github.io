@@ -1154,6 +1154,11 @@
 
     function resetSimulation() {
       try { sessionStorage.removeItem("heraEmailSimulation"); } catch (error) {}
+      prepareManualStartup();
+      render();
+    }
+
+    function prepareManualStartup() {
       Object.assign(state, {
         screen: "setup",
         group: null,
@@ -1164,7 +1169,6 @@
         researcherVisible: false,
         warmupOpened: false
       });
-      render();
     }
 
     function render() {
@@ -1238,7 +1242,10 @@
 
     window.onload = function () {
       const initializedFromUrl = initializeFromUrl();
-      if (!initializedFromUrl) resetSimulation();
+      if (!initializedFromUrl) {
+        try { sessionStorage.removeItem("heraEmailSimulation"); } catch (error) {}
+        prepareManualStartup();
+      }
       render();
     };
   </script>
