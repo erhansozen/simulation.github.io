@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hera Logistics Email Review Simulation</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --panel: #ffffff;
+      --panel-soft: #f8fafc;
+      --border: #d8dee8;
+      --border-strong: #b8c2d1;
+      --text: #182230;
+      --muted: #667085;
+      --muted-2: #8a94a6;
+      --brand: #22577a;
+      --brand-dark: #16415f;
+      --brand-soft: #e8f1f6;
+      --accent: #2f6f62;
+      --warning: #b54708;
+      --danger: #b42318;
+      --shadow: 0 18px 45px rgba(24, 34, 48, 0.12);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      background: #12384f;
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      background: #2f6f62;
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 0;
+      flex: 0 0 auto;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 650;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topbar-meta {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 13px;
+      min-width: 0;
+    }
+
+    .workspace {
+      flex: 1;
+      display: grid;
+      place-items: center;
+      padding: 32px 18px;
+    }
+
+    .screen-card {
+      width: min(860px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .screen-header {
+      padding: 22px 26px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel-soft);
+    }
+
+    .screen-kicker {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 7px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      font-size: 28px;
+      line-height: 1.16;
+      margin-bottom: 8px;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      font-size: 22px;
+      line-height: 1.2;
+      margin-bottom: 8px;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .screen-body {
+      padding: 26px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin: 20px 0 10px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #344054;
+    }
+
+    .field select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--border-strong);
+      border-radius: 7px;
+      padding: 0 12px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .info-list {
+      display: grid;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .info-row {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .label {
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .button-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 18px 26px;
+      border-top: 1px solid var(--border);
+      background: var(--panel-soft);
+    }
+
+    .btn {
+      min-height: 40px;
+      border-radius: 7px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--brand);
+    }
+
+    .btn:hover { background: var(--brand-dark); }
+
+    .btn.secondary {
+      color: var(--brand);
+      background: #fff;
+      border: 1px solid var(--border-strong);
+    }
+
+    .btn.secondary:hover {
+      background: var(--brand-soft);
+    }
+
+    .briefing-copy p,
+    .question-copy p {
+      margin-bottom: 14px;
+    }
+
+    .instruction-list {
+      display: grid;
+      gap: 10px;
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .instruction-list li {
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .mail-shell {
+      flex: 1;
+      width: 100%;
+      min-height: calc(100vh - 56px);
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      background: var(--bg);
+    }
+
+    .mail-sidebar {
+      border-right: 1px solid var(--border);
+      background: #fff;
+      min-height: calc(100vh - 56px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .folder-header {
+      padding: 18px 18px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .folder-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 750;
+      font-size: 18px;
+    }
+
+    .unread-pill {
+      min-width: 28px;
+      height: 22px;
+      border-radius: 999px;
+      display: inline-grid;
+      place-items: center;
+      padding: 0 8px;
+      font-size: 12px;
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .folder-subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .email-list {
+      overflow: auto;
+      padding: 8px;
+    }
+
+    .email-item {
+      width: 100%;
+      min-height: 76px;
+      text-align: left;
+      border-radius: 7px;
+      background: transparent;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      color: var(--text);
+      border: 1px solid transparent;
+    }
+
+    .email-item:hover {
+      background: #eef5f8;
+      border-color: #d4e4ec;
+    }
+
+    .email-item.active {
+      background: var(--brand-soft);
+      border-color: #bcd5e2;
+    }
+
+    .email-item.read {
+      color: var(--muted);
+      opacity: 0.78;
+    }
+
+    .email-item.filler {
+      opacity: 0.58;
+    }
+
+    .email-sender {
+      font-size: 13px;
+      font-weight: 760;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .email-subject {
+      font-size: 14px;
+      margin-top: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .email-snippet {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      margin-top: 5px;
+      border-radius: 999px;
+      background: var(--brand);
+    }
+
+    .status-dot.read {
+      background: #cbd5e1;
+    }
+
+    .reading-pane {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+    }
+
+    .pane-toolbar {
+      min-height: 58px;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel-soft);
+    }
+
+    .pane-toolbar-title {
+      min-width: 0;
+      font-weight: 750;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .message {
+      width: min(880px, 100%);
+      padding: 34px 38px;
+    }
+
+    .message-meta {
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 22px;
+    }
+
+    .message-subject {
+      font-size: 25px;
+      line-height: 1.2;
+      margin-bottom: 14px;
+      letter-spacing: 0;
+    }
+
+    .message-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .message-body {
+      max-width: 720px;
+      white-space: pre-line;
+      font-size: 15px;
+      color: #263442;
+    }
+
+    .message-link {
+      color: #175cd3;
+      text-decoration: underline;
+      font-weight: 650;
+      cursor: pointer;
+      overflow-wrap: anywhere;
+    }
+
+    .empty-pane {
+      flex: 1;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty-pane-inner {
+      max-width: 420px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.42);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 30;
+    }
+
+    .modal-backdrop.visible {
+      display: flex;
+    }
+
+    .modal {
+      width: min(440px, 100%);
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .modal-body {
+      padding: 22px;
+    }
+
+    .modal-body h2 {
+      font-size: 19px;
+      margin-bottom: 8px;
+    }
+
+    .mock-address {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 7px;
+      background: #f1f5f9;
+      color: #344054;
+      overflow-wrap: anywhere;
+      margin: 14px 0;
+      font-size: 13px;
+    }
+
+    .research-panel {
+      position: fixed;
+      right: 8px;
+      bottom: 6px;
+      width: auto;
+      max-width: calc(100vw - 16px);
+      background: transparent;
+      color: rgba(24, 34, 48, 0.52);
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0;
+      z-index: 40;
+      display: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 11px;
+      line-height: 1.35;
+      pointer-events: none;
+    }
+
+    .research-panel.visible {
+      display: block;
+    }
+
+    .corner-hotspot {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      width: 18px;
+      height: 18px;
+      opacity: 0;
+      z-index: 35;
+    }
+
+    .debrief-box {
+      border: 1px solid #f2c98a;
+      background: #fff7e8;
+      color: #613b0f;
+      padding: 14px;
+      border-radius: 7px;
+      margin-top: 18px;
+    }
+
+    .question-list {
+      display: grid;
+      gap: 12px;
+      padding: 0;
+      margin: 18px 0 0;
+      list-style: none;
+    }
+
+    .question-list li {
+      padding: 13px 14px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    @media (max-width: 760px) {
+      .topbar {
+        padding: 0 14px;
+      }
+
+      .topbar-meta {
+        display: none;
+      }
+
+      .workspace {
+        padding: 18px 12px;
+      }
+
+      .screen-header,
+      .screen-body,
+      .button-row {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      h1 { font-size: 23px; }
+
+      .form-grid,
+      .info-row {
+        grid-template-columns: 1fr;
+      }
+
+      .mail-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .mail-sidebar {
+        min-height: auto;
+        max-height: 44vh;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .message {
+        padding: 24px 18px;
+      }
+
+      .message-subject {
+        font-size: 21px;
+      }
+
+      .pane-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="app-shell"></div>
+
+  <button id="cornerHotspot" class="corner-hotspot" aria-label="Research monitor"></button>
+  <aside id="researchPanel" class="research-panel" aria-live="polite"></aside>
+
+  <div id="mockModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="mockModalTitle">
+    <div class="modal">
+      <div class="modal-body">
+        <h2 id="mockModalTitle">Simulated external page</h2>
+        <p class="muted">This is a mock interaction for the email review task. No information has been submitted or transmitted.</p>
+        <code id="mockAddress" class="mock-address"></code>
+      </div>
+      <div class="button-row">
+        <button class="btn" id="closeModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const app = document.getElementById("app");
+    const researchPanel = document.getElementById("researchPanel");
+    const cornerHotspot = document.getElementById("cornerHotspot");
+    const mockModal = document.getElementById("mockModal");
+    const mockAddress = document.getElementById("mockAddress");
+    const closeModal = document.getElementById("closeModal");
+
+    const emailKeys = ["Email 1", "Email 2", "Email 3", "Email 4"];
+
+    const experimentalEmails = {
+      "Email 1": {
+        id: "Email 1",
+        condition: "Legitimate Human",
+        sender: "max.mueller@heralogistics.com",
+        subject: "Small update on Vienna deliveries",
+        content: "Hi Alex,\n\nI wanted to check in regarding the Vienna delivery schedule for next week. We received a small update from the transport team this morning, and I'm trying to make sure we have the latest information before finalizing the coordination plan.\n\nCould you take a quick look at the current schedule and let me know if there are any changes on your side, especially regarding timing or delivery priorities?\n\nNo rush today, but it would help if we could confirm things by tomorrow afternoon.\n\nThanks!\nBest,\nMax M\u00fcller\nOperations Team"
+      },
+      "Email 2": {
+        id: "Email 2",
+        condition: "Legitimate AI-Assisted",
+        sender: "hr@heralogistics.com",
+        subject: "Notification Regarding Updated Annual Leave Request Procedures",
+        content: "Dear Alex,\n\nWe would like to formally inform you about an optimization in the annual leave request procedure at Hera Logistics. In order to facilitate smoother internal scheduling and enhance inter-departmental coordination, all future leave requests submitted from the upcoming month onward should be formally logged through the updated Human Resources internal portal, rather than utilizing the previous email-based process.\n\nPlease be assured that no immediate action is mandatory at this current stage. However, we highly encourage you to review the updated guidelines at your earliest convenience so that your future applications may be processed without any operational delay.\n\nThe comprehensive revised instructions are thoroughly detailed on the internal HR knowledge base and will additionally be presented during next week's corporate team briefing. Should you require any further clarification or have specific inquiries, please feel free to contact the Human Resources Team.\n\nThank you for your time and cooperation in transitioning to this optimized process.\n\nKind regards,\nHR Team\nHera Logistics"
+      },
+      "Email 3": {
+        id: "Email 3",
+        condition: "Traditional Phishing",
+        sender: "support@hera-mailsecurity.com",
+        subject: "URGENT: Verify Your Mailbox Access System Immediately!",
+        content: "Hi,\n\nYour Hera Logistics mailbox has been flagged due to unusual login activity and your mail services may be limited if not confirmed right now.\n\nTo avoid interruption of email services, all employees are requested to verify mailbox access immediately. Failure to complete verification within 24 hours can result in permanent restrictions of your account.\n\nPlease confirm your account information using the secure verification page below:\n\n[[LINK:mail-security-hera.net/verify|mail-security-hera.net/verify]]\n\nWe apologize for inconvenience caused and thank you for cooperation.\n\nIT Mail Support\nHera Logistics"
+      },
+      "Email 4": {
+        id: "Email 4",
+        condition: "AI-Generated Phishing",
+        sender: "it.support@heralogistics.com",
+        subject: "Action Required: Updated Access Authentication Process",
+        content: "Hi Alex,\n\nAs part of Hera Logistics' ongoing security improvements, we are introducing an updated authentication process for employee account access.\n\nTo support uninterrupted access to internal systems and ensure alignment with current security standards, employees are asked to confirm their authentication settings through the updated access portal. The process takes only a few minutes and should be completed before the end of this week to avoid temporary access interruptions while the new configuration is being finalized.\n\nPlease review and confirm your settings via our secure cloud portal:\n\n[[LINK:https://sharepoint-heralogistics.com/auth/login|sharepoint-heralogistics.com]]\n\nIf you have already completed this process, no further action is required.\n\nThank you for your cooperation and continued support in maintaining secure access across company systems.\n\nKind regards,\nIT Support\nHera Logistics\nSystems & Access Team"
+      }
+    };
+
+    const warmupEmail = {
+      id: "P1",
+      condition: "Practice",
+      sender: "facilities@heralogistics.com",
+      subject: "Cafeteria Opening Hours Update",
+      content: "Hi Alex,\n\nPlease note that the cafeteria opening hours will be adjusted next Wednesday due to routine maintenance in the kitchen area.\n\nThe cafeteria will open at 10:30 instead of 08:00. Coffee and packaged snacks will still be available in the second-floor break area during the morning.\n\nRegular opening hours will resume on Thursday.\n\nBest regards,\nFacilities Team\nHera Logistics"
+    };
+
+    const fillerEmails = [
+      ["internal.news@heralogistics.com", "Weekly Operations Newsletter", "Highlights from regional logistics teams and planning updates."],
+      ["procurement@heralogistics.com", "Supplier Documentation Reminder", "Routine reminder about archiving supplier documentation."],
+      ["office.admin@heralogistics.com", "Meeting Room Maintenance Schedule", "Several meeting rooms will be unavailable for brief checks."],
+      ["training@heralogistics.com", "Optional Learning Sessions for June", "New internal learning sessions have been added to the calendar."],
+      ["finance@heralogistics.com", "Expense Submission Cutoff", "Please submit routine expenses before the monthly finance deadline."]
+    ];
+
+    const state = {
+      screen: "setup",
+      group: null,
+      sequence: [],
+      mainIndex: 0,
+      openedEmail: null,
+      completed: [],
+      researcherVisible: false,
+      warmupOpened: false
+    };
+
+    function emailKeyFromDigit(digit) {
+      return `Email ${digit}`;
+    }
+
+    function digitFromEmailKey(emailKey) {
+      return emailKey.replace("Email ", "");
+    }
+
+    function normalizeGroup(value) {
+      const group = String(value || "").trim().toLowerCase();
+      if (group === "primed" || group === "ai" || group === "ai-primed") return "primed";
+      if (group === "control") return "control";
+      return null;
+    }
+
+    function parseSequence(value) {
+      const digits = String(value || "").replace(/[^1-4]/g, "").split("");
+      const isValid = digits.length === 4 && new Set(digits).size === 4;
+      if (!isValid) return null;
+      return digits.map(emailKeyFromDigit);
+    }
+
+    function sequenceCode() {
+      return state.sequence.map(digitFromEmailKey).join("-");
+    }
+
+    function initializeFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const group = normalizeGroup(params.get("group"));
+      const sequence = parseSequence(params.get("sequence"));
+      if (!group || !sequence) return false;
+
+      try { sessionStorage.removeItem("heraEmailSimulation"); } catch (error) {}
+      Object.assign(state, {
+        screen: "briefing",
+        group,
+        sequence,
+        mainIndex: 0,
+        openedEmail: null,
+        completed: [],
+        researcherVisible: false,
+        warmupOpened: false
+      });
+      saveProgress();
+      return true;
+    }
+
+    function saveProgress() {
+      try {
+        sessionStorage.setItem("heraEmailSimulation", JSON.stringify(state));
+      } catch (error) {
+        // In-memory state remains authoritative; storage is only a refresh fallback.
+      }
+    }
+
+    function loadProgress() {
+      try {
+        const saved = JSON.parse(sessionStorage.getItem("heraEmailSimulation") || "null");
+        if (saved && saved.group && Array.isArray(saved.sequence) && saved.sequence.length === 4) Object.assign(state, saved);
+      } catch (error) {}
+    }
+
+    function setScreen(screen) {
+      state.screen = screen;
+      state.openedEmail = null;
+      saveProgress();
+      render();
+    }
+
+    function currentExperimentalId() {
+      if (!state.sequence.length || state.mainIndex >= state.sequence.length) return "Complete";
+      return state.sequence[state.mainIndex];
+    }
+
+    function renderTopbar() {
+      return `
+        <header class="topbar">
+          <div class="brand-lockup">
+            <div class="brand-mark" aria-hidden="true">H</div>
+            <div class="brand-title">Hera Logistics Mail</div>
+          </div>
+          <div class="topbar-meta">
+            <span>Alex Weber</span>
+            <span>alex.weber@heralogistics.com</span>
+          </div>
+        </header>
+      `;
+    }
+
+    function screenFrame(kicker, title, body, actions) {
+      app.innerHTML = `
+        ${renderTopbar()}
+        <main class="workspace">
+          <section class="screen-card">
+            <div class="screen-header">
+              <div class="screen-kicker">${kicker}</div>
+              <h1>${title}</h1>
+            </div>
+            <div class="screen-body">${body}</div>
+            <div class="button-row">${actions}</div>
+          </section>
+        </main>
+      `;
+    }
+
+    function renderSetup() {
+      app.innerHTML = `
+        ${renderTopbar()}
+        <main class="workspace">
+          <section class="screen-card">
+            <div class="screen-header">
+              <div class="screen-kicker">Researcher setup</div>
+              <h1>Email Review Simulation</h1>
+              <p class="muted">Select the assigned condition before the participant begins.</p>
+            </div>
+            <form id="setupForm">
+              <div class="screen-body">
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="groupSelect">Participant Group</label>
+                    <select id="groupSelect" required>
+                      <option value="control">Control Group</option>
+                      <option value="primed">AI-Primed Group</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="sequence1">First Email</label>
+                    <select id="sequence1" class="sequence-select" required>
+                      <option value="1">Email 1</option>
+                      <option value="2">Email 2</option>
+                      <option value="3">Email 3</option>
+                      <option value="4">Email 4</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="sequence2">Second Email</label>
+                    <select id="sequence2" class="sequence-select" required>
+                      <option value="1">Email 1</option>
+                      <option value="2">Email 2</option>
+                      <option value="3">Email 3</option>
+                      <option value="4">Email 4</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="sequence3">Third Email</label>
+                    <select id="sequence3" class="sequence-select" required>
+                      <option value="1">Email 1</option>
+                      <option value="2">Email 2</option>
+                      <option value="3">Email 3</option>
+                      <option value="4">Email 4</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="sequence4">Fourth Email</label>
+                    <select id="sequence4" class="sequence-select" required>
+                      <option value="1">Email 1</option>
+                      <option value="2">Email 2</option>
+                      <option value="3">Email 3</option>
+                      <option value="4">Email 4</option>
+                    </select>
+                  </div>
+                </div>
+                <p id="sequenceError" class="muted" role="alert"></p>
+              </div>
+              <div class="button-row">
+                <button type="submit" class="btn">Begin simulation</button>
+              </div>
+            </form>
+          </section>
+        </main>
+      `;
+      document.getElementById("setupForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        const digits = Array.from(document.querySelectorAll(".sequence-select")).map((select) => select.value);
+        if (new Set(digits).size !== 4) {
+          document.getElementById("sequenceError").textContent = "Please select each email number exactly once.";
+          return;
+        }
+        state.group = document.getElementById("groupSelect").value;
+        state.sequence = digits.map(emailKeyFromDigit);
+        state.screen = "briefing";
+        state.mainIndex = 0;
+        state.completed = [];
+        state.openedEmail = null;
+        state.warmupOpened = false;
+        saveProgress();
+        render();
+      });
+      ["sequence1", "sequence2", "sequence3", "sequence4"].forEach((id, index) => {
+        document.getElementById(id).value = String(index + 1);
+      });
+    }
+
+    function renderBriefing() {
+      const aiParagraph = state.group === "primed"
+        ? `<p><strong>Recent developments in workplace communication mean that emails may increasingly be written, assisted, or generated using artificial intelligence technologies. As communication practices evolve, the style and presentation of workplace emails may vary.</strong></p>`
+        : "";
+
+      screenFrame(
+        "Workplace context",
+        "Organizational Briefing",
+        `
+          <div class="briefing-copy">
+            <p>You are Alex Weber, an Operations Coordinator at Hera Logistics. In this task, you will review workplace emails as they appear in your corporate inbox.</p>
+            <div class="info-list">
+              <div class="info-row"><span class="label">User identity</span><span>Alex Weber</span></div>
+              <div class="info-row"><span class="label">Role</span><span>Operations Coordinator at Hera Logistics</span></div>
+              <div class="info-row"><span class="label">Corporate website</span><span>www.heralogistics.com</span></div>
+              <div class="info-row"><span class="label">Corporate email</span><span>alex.weber@heralogistics.com</span></div>
+            </div>
+            <p>Please approach the inbox as you normally would during a workday.</p>
+            ${aiParagraph}
+          </div>
+        `,
+        `<button class="btn" data-next="thinkaloud">Continue</button>`
+      );
+    }
+
+    function renderThinkAloud() {
+      screenFrame(
+        "Participant instructions",
+        "Think-Aloud Instructions",
+        `
+          <p>Please speak your thoughts out loud continuously while reviewing the emails.</p>
+          <ul class="instruction-list">
+            <li>Say what you notice as you read each message.</li>
+            <li>Explain how you interpret the sender, subject, wording, links, and requests.</li>
+            <li>Describe what action you would take in a normal work situation.</li>
+            <li>Keep talking even if your thoughts feel uncertain or incomplete.</li>
+          </ul>
+        `,
+        `<button class="btn secondary" data-next="briefing">Back</button><button class="btn" data-next="practiceIntro">Continue</button>`
+      );
+    }
+
+    function renderPracticeIntro() {
+      screenFrame(
+        "Practice run",
+        "Non-Recorded Practice Email",
+        `
+          <p>The next step is a brief practice run. This email is only to help you get used to thinking aloud while reviewing an inbox message.</p>
+          <p class="muted">The practice email is neutral and is not part of the main recorded task.</p>
+        `,
+        `<button class="btn secondary" data-next="thinkaloud">Back</button><button class="btn" data-next="warmup">Open practice inbox</button>`
+      );
+    }
+
+    function renderWarmup() {
+      renderMailShell({
+        mode: "warmup",
+        title: "Practice Inbox",
+        unreadCount: state.warmupOpened ? 0 : 1,
+        primaryEmail: warmupEmail,
+        selectedEmail: state.openedEmail === "P1" ? warmupEmail : null
+      });
+    }
+
+    function renderTransition() {
+      screenFrame(
+        "Main task transition",
+        "Thank you. We will now begin the main task.",
+        `
+          <p>You will now review a sequence of workplace emails in the inbox. Please continue speaking your thoughts out loud as you review each message.</p>
+        `,
+        `<button class="btn" data-next="mainInbox">Begin main task</button>`
+      );
+    }
+
+    function renderMainInbox() {
+      const currentId = currentExperimentalId();
+      if (currentId === "Complete") {
+        setScreen("debrief");
+        return;
+      }
+      const email = experimentalEmails[currentId];
+      renderMailShell({
+        mode: "main",
+        title: "Inbox",
+        unreadCount: 1,
+        primaryEmail: email,
+        selectedEmail: state.openedEmail === currentId ? email : null
+      });
+    }
+
+    function renderMailShell({ mode, title, unreadCount, primaryEmail, selectedEmail }) {
+      const primaryRead = mode === "warmup" && state.warmupOpened;
+      const primaryButton = `
+        <button class="email-item ${selectedEmail ? "active" : ""} ${primaryRead ? "read" : ""}" data-open="${primaryEmail.id}">
+          <span>
+            <span class="email-sender">${primaryEmail.sender}</span>
+            <span class="email-subject">${primaryEmail.subject}</span>
+            <span class="email-snippet">${snippet(primaryEmail.content)}</span>
+          </span>
+          <span class="status-dot ${primaryRead ? "read" : ""}" aria-hidden="true"></span>
+        </button>
+      `;
+      const fillers = fillerEmails.map(([sender, subject, body]) => `
+        <button class="email-item filler read" type="button" aria-disabled="true">
+          <span>
+            <span class="email-sender">${sender}</span>
+            <span class="email-subject">${subject}</span>
+            <span class="email-snippet">${body}</span>
+          </span>
+          <span class="status-dot read" aria-hidden="true"></span>
+        </button>
+      `).join("");
+
+      app.innerHTML = `
+        ${renderTopbar()}
+        <main class="mail-shell">
+          <aside class="mail-sidebar">
+            <div class="folder-header">
+              <div class="folder-title">
+                <span>${title}</span>
+                <span class="unread-pill">${unreadCount}</span>
+              </div>
+              <div class="folder-subtitle">${mode === "main" ? "Routine messages and current unread email" : "Practice email review"}</div>
+            </div>
+            <div class="email-list">
+              ${primaryButton}
+              ${mode === "main" ? fillers : ""}
+            </div>
+          </aside>
+          <section class="reading-pane">
+            ${selectedEmail ? renderMessage(selectedEmail, mode) : renderEmptyPane(mode)}
+          </section>
+        </main>
+      `;
+    }
+
+    function renderMessage(email, mode) {
+      return `
+        <div class="pane-toolbar">
+          <div class="pane-toolbar-title">${email.subject}</div>
+          <button class="btn secondary" data-back-inbox="${mode}">Back to Inbox</button>
+        </div>
+        <article class="message">
+          <div class="message-meta">
+            <h2 class="message-subject">${email.subject}</h2>
+            <div class="message-line"><strong>From:</strong><span>${email.sender}</span></div>
+            <div class="message-line"><strong>To:</strong><span>Alex Weber &lt;alex.weber@heralogistics.com&gt;</span></div>
+          </div>
+          <div class="message-body">${formatEmailContent(email.content)}</div>
+        </article>
+      `;
+    }
+
+    function renderEmptyPane(mode) {
+      return `
+        <div class="empty-pane">
+          <div class="empty-pane-inner">
+            <h2>${mode === "main" ? "Select the unread email" : "Select the practice email"}</h2>
+            <p>Open the message from the inbox list to begin reviewing it.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDebrief() {
+      screenFrame(
+        "Post-task reflection",
+        "Reflection & Debriefing Questions",
+        `
+          <div class="question-copy">
+            <p>Please answer the following questions verbally for the researcher.</p>
+            <ul class="question-list">
+              <li>Which emails felt most trustworthy or untrustworthy, and why?</li>
+              <li>What specific cues did you notice in the sender, subject line, wording, tone, or links?</li>
+              <li>Did any message feel automated, assisted by AI, or unusually polished? What made you think so?</li>
+              <li>What actions would you have taken for each email in a real workplace setting?</li>
+              <li>How confident did you feel while judging the emails?</li>
+            </ul>
+            <div class="debrief-box">
+              <strong>Ethical debrief:</strong>
+              <p>This task included simulated phishing emails for research purposes. Email 3 and Email 4 were designed as phishing simulations. The links were mock links only; no information was collected, submitted, or transmitted. The purpose of these simulations is to study how people interpret workplace emails and identify potentially unsafe requests in a controlled research setting.</p>
+            </div>
+          </div>
+        `,
+        `<button class="btn secondary" id="resetSimulation">Reset simulation</button>`
+      );
+    }
+
+    function snippet(content) {
+      return content.replace(/\[\[LINK:.*?\|(.*?)\]\]/g, "$1").replace(/\s+/g, " ").trim().slice(0, 88);
+    }
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatEmailContent(content) {
+      const escaped = escapeHtml(content);
+      return escaped.replace(/\[\[LINK:(.*?)\|(.*?)\]\]/g, (_, url, text) => {
+        return `<a href="#" class="message-link" data-mock-link="${url}">${text}</a>`;
+      });
+    }
+
+    function openEmail(id) {
+      state.openedEmail = id;
+      if (id === "P1") state.warmupOpened = true;
+      saveProgress();
+      render();
+    }
+
+    function backToInbox(mode) {
+      if (mode === "warmup") {
+        setScreen("transition");
+        return;
+      }
+      const currentId = currentExperimentalId();
+      if (state.openedEmail === currentId) {
+        state.completed.push(currentId);
+        state.mainIndex += 1;
+      }
+      state.openedEmail = null;
+      if (state.mainIndex >= state.sequence.length) {
+        setScreen("debrief");
+      } else {
+        setScreen("mainInbox");
+      }
+    }
+
+    function openMockPage(url) {
+      mockAddress.textContent = url;
+      mockModal.classList.add("visible");
+      closeModal.focus();
+    }
+
+    function updateResearchPanel() {
+      const currentId = currentExperimentalId();
+      const condition = experimentalEmails[currentId]?.condition || "None";
+      const number = state.screen === "mainInbox" ? `${Math.min(state.mainIndex + 1, 4)} of 4` : "Not in main task";
+      const groupLabel = state.group === "primed" ? "Primed" : state.group === "control" ? "Control" : "None";
+      const orderLabel = state.sequence.length ? sequenceCode() : "None";
+
+      researchPanel.textContent = `G: ${groupLabel} | N: ${number} | C: ${currentId}${condition !== "None" ? " / " + condition : ""} | O: ${orderLabel}`;
+      researchPanel.classList.toggle("visible", state.researcherVisible);
+    }
+
+    function resetSimulation() {
+      try { sessionStorage.removeItem("heraEmailSimulation"); } catch (error) {}
+      Object.assign(state, {
+        screen: "setup",
+        group: null,
+        sequence: [],
+        mainIndex: 0,
+        openedEmail: null,
+        completed: [],
+        researcherVisible: false,
+        warmupOpened: false
+      });
+      render();
+    }
+
+    function render() {
+      if (state.screen === "setup") renderSetup();
+      if (state.screen === "briefing") renderBriefing();
+      if (state.screen === "thinkaloud") renderThinkAloud();
+      if (state.screen === "practiceIntro") renderPracticeIntro();
+      if (state.screen === "warmup") renderWarmup();
+      if (state.screen === "transition") renderTransition();
+      if (state.screen === "mainInbox") renderMainInbox();
+      if (state.screen === "debrief") renderDebrief();
+      updateResearchPanel();
+    }
+
+    document.addEventListener("click", (event) => {
+      const next = event.target.closest("[data-next]");
+      if (next) {
+        setScreen(next.dataset.next);
+        return;
+      }
+
+      const openButton = event.target.closest("[data-open]");
+      if (openButton) {
+        openEmail(openButton.dataset.open);
+        return;
+      }
+
+      const backButton = event.target.closest("[data-back-inbox]");
+      if (backButton) {
+        backToInbox(backButton.dataset.backInbox);
+        return;
+      }
+
+      const mockLink = event.target.closest("[data-mock-link]");
+      if (mockLink) {
+        event.preventDefault();
+        openMockPage(mockLink.dataset.mockLink);
+        return;
+      }
+
+      if (event.target.closest("#resetSimulation")) {
+        resetSimulation();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "r") {
+        event.preventDefault();
+        state.researcherVisible = !state.researcherVisible;
+        saveProgress();
+        updateResearchPanel();
+      }
+      if (event.key === "Escape" && mockModal.classList.contains("visible")) {
+        mockModal.classList.remove("visible");
+      }
+    });
+
+    cornerHotspot.addEventListener("dblclick", () => {
+      state.researcherVisible = !state.researcherVisible;
+      saveProgress();
+      updateResearchPanel();
+    });
+
+    closeModal.addEventListener("click", () => {
+      mockModal.classList.remove("visible");
+    });
+
+    mockModal.addEventListener("click", (event) => {
+      if (event.target === mockModal) mockModal.classList.remove("visible");
+    });
+
+    window.onload = function () {
+      const initializedFromUrl = initializeFromUrl();
+      if (!initializedFromUrl) resetSimulation();
+      render();
+    };
+  </script>
+</body>
+</html>
