@@ -746,17 +746,14 @@
       const sequence = parseSequence(params.get("s"));
       if (!group || !sequence) return false;
 
-      try { sessionStorage.removeItem("heraEmailSimulation"); } catch (error) {}
-      Object.assign(state, {
-        screen: "briefing",
-        group,
-        sequence,
-        mainIndex: 0,
-        openedEmail: null,
-        completed: [],
-        researcherVisible: false,
-        warmupOpened: false
-      });
+      state.group = group;
+      state.sequence = sequence;
+      state.screen = "briefing";
+      state.mainIndex = 0;
+      state.openedEmail = null;
+      state.completed = [];
+      state.researcherVisible = false;
+      state.warmupOpened = false;
       saveProgress();
 
       try {
@@ -906,11 +903,11 @@
         state.warmupOpened = false;
         saveProgress();
 
+        render();
+
         try {
           window.history.replaceState(null, "", window.location.pathname);
         } catch (error) {}
-
-        render();
       });
       ["sequence1", "sequence2", "sequence3", "sequence4"].forEach((id, index) => {
         document.getElementById(id).value = String(index + 1);
@@ -1260,22 +1257,29 @@
         prepareManualStartup();
         render();
       } else {
-        const initializedFromUrl = initializeFromUrl();
-        if (!initializedFromUrl) {
-          loadProgress();
-          if (!state.group || !state.sequence || !state.sequence.length) {
-            Object.assign(state, {
-              screen: "briefing",
-              group: "control",
-              sequence: ["Email 1", "Email 2", "Email 3", "Email 4"],
-              mainIndex: 0,
-              openedEmail: null,
-              completed: [],
-              researcherVisible: false,
-              warmupOpened: false
-            });
-            saveProgress();
-          }
+        loadProgress();
+        const hasValidSession = state.group && state.sequence && state.sequence.length === 4;
+        
+        const groupParam = normalizeGroup(params.get("g"));
+        const sequenceParam = parseSequence(params.get("s"));
+        const hasUrlParams = groupParam && sequenceParam;
+
+        if (hasUrlParams) {
+          initializeFromUrl();
+        } else if (hasValidSession) {
+          // Retain session
+        } else {
+          Object.assign(state, {
+            screen: "briefing",
+            group: "control",
+            sequence: ["Email 1", "Email 2", "Email 3", "Email 4"],
+            mainIndex: 0,
+            openedEmail: null,
+            completed: [],
+            researcherVisible: false,
+            warmupOpened: false
+          });
+          saveProgress();
         }
         render();
       }
