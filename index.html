@@ -534,14 +534,21 @@
       display: block;
     }
 
-    .corner-hotspot {
-      position: fixed;
-      right: 0;
-      bottom: 0;
-      width: 18px;
-      height: 18px;
-      opacity: 0;
-      z-index: 35;
+    .research-reset-btn {
+      background: none;
+      border: none;
+      color: #b42318;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+      font-family: inherit;
+      font-size: inherit;
+      margin-left: 8px;
+      pointer-events: auto;
+    }
+
+    .research-reset-btn:hover {
+      color: #901a12;
     }
 
     .debrief-box {
@@ -624,7 +631,6 @@
 <body>
   <div id="app" class="app-shell"></div>
 
-  <button id="cornerHotspot" class="corner-hotspot" aria-label="Research monitor"></button>
   <aside id="researchPanel" class="research-panel" aria-live="polite"></aside>
 
   <div id="mockModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="mockModalTitle">
@@ -643,7 +649,6 @@
   <script>
     const app = document.getElementById("app");
     const researchPanel = document.getElementById("researchPanel");
-    const cornerHotspot = document.getElementById("cornerHotspot");
     const mockModal = document.getElementById("mockModal");
     const mockAddress = document.getElementById("mockAddress");
     const closeModal = document.getElementById("closeModal");
@@ -675,7 +680,7 @@
       "Email 4": {
         id: "Email 4",
         condition: "AI-Generated Phishing",
-        sender: "it.support@heralogistics.com",
+        sender: "it.support@heralogistics-management.com",
         subject: "Action Required: Updated Access Authentication Process",
         content: "Hi Alex,\n\nAs part of Hera Logistics' ongoing security improvements, we are introducing an updated authentication process for employee account access.\n\nTo support uninterrupted access to internal systems and ensure alignment with current security standards, employees are asked to confirm their authentication settings through the updated access portal. The process takes only a few minutes and should be completed before the end of this week to avoid temporary access interruptions while the new configuration is being finalized.\n\nPlease review and confirm your settings via our secure cloud portal:\n\n[[LINK:https://sharepoint-heralogistics.com/auth/login|sharepoint-heralogistics.com]]\n\nIf you have already completed this process, no further action is required.\n\nThank you for your cooperation and continued support in maintaining secure access across company systems.\n\nKind regards,\nIT Support\nHera Logistics\nSystems & Access Team"
       }
@@ -718,8 +723,8 @@
 
     function normalizeGroup(value) {
       const group = String(value || "").trim().toLowerCase();
-      if (group === "primed" || group === "ai" || group === "ai-primed") return "primed";
-      if (group === "control") return "control";
+      if (group === "1" || group === "control") return "control";
+      if (group === "2" || group === "primed" || group === "ai" || group === "ai-primed") return "primed";
       return null;
     }
 
@@ -736,8 +741,9 @@
 
     function initializeFromUrl() {
       const params = new URLSearchParams(window.location.search);
-      const group = normalizeGroup(params.get("group"));
-      const sequence = parseSequence(params.get("sequence"));
+      if (params.get("mode") === "researcher") return false;
+      const group = normalizeGroup(params.get("g"));
+      const sequence = parseSequence(params.get("s"));
       if (!group || !sequence) return false;
 
       try { sessionStorage.removeItem("heraEmailSimulation"); } catch (error) {}
@@ -752,6 +758,11 @@
         warmupOpened: false
       });
       saveProgress();
+
+      try {
+        window.history.replaceState(null, "", window.location.pathname);
+      } catch (error) {}
+
       return true;
     }
 
@@ -807,7 +818,7 @@
               <h1>${title}</h1>
             </div>
             <div class="screen-body">${body}</div>
-            <div class="button-row">${actions}</div>
+            ${actions ? `<div class="button-row">${actions}</div>` : ""}
           </section>
         </main>
       `;
@@ -894,6 +905,11 @@
         state.openedEmail = null;
         state.warmupOpened = false;
         saveProgress();
+
+        try {
+          window.history.replaceState(null, "", window.location.pathname);
+        } catch (error) {}
+
         render();
       });
       ["sequence1", "sequence2", "sequence3", "sequence4"].forEach((id, index) => {
@@ -903,7 +919,7 @@
 
     function renderBriefing() {
       const aiParagraph = state.group === "primed"
-        ? `<p><strong>Recent developments in workplace communication mean that emails may increasingly be written, assisted, or generated using artificial intelligence technologies. As communication practices evolve, the style and presentation of workplace emails may vary.</strong></p>`
+        ? `<p>Recent developments in workplace communication mean that emails may increasingly be written, assisted, or generated using artificial intelligence technologies. As communication practices evolve, the style and presentation of workplace emails may vary.</p>`
         : "";
 
       screenFrame(
@@ -911,7 +927,7 @@
         "Organizational Briefing",
         `
           <div class="briefing-copy">
-            <p>You are Alex Weber, an Operations Coordinator at Hera Logistics. In this task, you will review workplace emails as they appear in your corporate inbox.</p>
+            <p>You are Alex Weber, an Operations Coordinator at Hera Logistics, an international logistics and operations company. Your role is Operations Coordinator. You regularly communicate with internal departments such as Operations, Human Resources, Finance, and IT Support to ensure daily workflows continue smoothly. Your email inbox is typically busy, and most mornings you receive several work-related emails that require coordination, follow-up, or action.</p>
             <div class="info-list">
               <div class="info-row"><span class="label">User identity</span><span>Alex Weber</span></div>
               <div class="info-row"><span class="label">Role</span><span>Operations Coordinator at Hera Logistics</span></div>
@@ -919,7 +935,9 @@
               <div class="info-row"><span class="label">Corporate email</span><span>alex.weber@heralogistics.com</span></div>
             </div>
             <p>Please approach the inbox as you normally would during a workday.</p>
+            <p><strong>Task:</strong><br>In this task, you will take part in a workplace communication simulation. You will review several emails that may typically appear in your inbox during a workday.</p>
             ${aiParagraph}
+            <p>As you read each email, please think aloud and describe what you notice, how you interpret the message, and how you decide whether and how you would respond. There are no right or wrong answers. We are interested in how people naturally interpret workplace emails and make sense of them. Please review each email and verbalize your thoughts as clearly as possible.</p>
           </div>
         `,
         `<button class="btn" data-next="thinkaloud">Continue</button>`
@@ -929,15 +947,16 @@
     function renderThinkAloud() {
       screenFrame(
         "Participant instructions",
-        "Think-Aloud Instructions",
+        "Think-Aloud Protocol Instructions",
         `
-          <p>Please speak your thoughts out loud continuously while reviewing the emails.</p>
+          <p>In a moment, you will review a series of consecutive emails arriving in your inbox.</p>
+          <p><strong>What is Expected of You:</strong><br>As you read and evaluate each email, please express your thoughts out loud as they occur.</p>
           <ul class="instruction-list">
-            <li>Say what you notice as you read each message.</li>
-            <li>Explain how you interpret the sender, subject, wording, links, and requests.</li>
-            <li>Describe what action you would take in a normal work situation.</li>
-            <li>Keep talking even if your thoughts feel uncertain or incomplete.</li>
+            <li>What were your initial impressions when you first opened the email?</li>
+            <li>What do you think about the sender, the subject line, or the specific content?</li>
+            <li>What action would you take regarding this email (e.g., reply immediately, delete, postpone for later)?</li>
           </ul>
+          <p style="margin-top: 18px;">Please approach the emails as naturally as you would during a typical workday and describe your thoughts as they occur. Act naturally, just like a busy employee trying to clear their inbox on a typical, demanding workday. When you are ready, you may proceed to the first email (Warm-up email).</p>
         `,
         `<button class="btn secondary" data-next="briefing">Back</button><button class="btn" data-next="practiceIntro">Continue</button>`
       );
@@ -946,10 +965,9 @@
     function renderPracticeIntro() {
       screenFrame(
         "Practice run",
-        "Non-Recorded Practice Email",
+        "Practice Email",
         `
-          <p>The next step is a brief practice run. This email is only to help you get used to thinking aloud while reviewing an inbox message.</p>
-          <p class="muted">The practice email is neutral and is not part of the main recorded task.</p>
+          <p>Before we begin the main task, you will first review a short practice email. This practice email is intended to help you become familiar with the think-aloud procedure and is not part of the main study. Please approach it in the same way you would approach the later emails and verbalize your thoughts as they occur.</p>
         `,
         `<button class="btn secondary" data-next="thinkaloud">Back</button><button class="btn" data-next="warmup">Open practice inbox</button>`
       );
@@ -970,7 +988,7 @@
         "Main task transition",
         "Thank you. We will now begin the main task.",
         `
-          <p>You will now review a sequence of workplace emails in the inbox. Please continue speaking your thoughts out loud as you review each message.</p>
+          <p>The following emails are part of the workplace email simulation. Please continue to verbalize your thoughts as you review each message.</p>
         `,
         `<button class="btn" data-next="mainInbox">Begin main task</button>`
       );
@@ -1067,6 +1085,10 @@
     }
 
     function renderDebrief() {
+      const primedQuestion = state.group === "primed"
+        ? `<li>At the beginning of the session, you read a brief note about the increasing use of artificial intelligence in workplace communication. To what extent, if at all, did you think about or look for signs of artificial intelligence while reviewing these specific emails?</li>`
+        : "";
+
       screenFrame(
         "Post-task reflection",
         "Reflection & Debriefing Questions",
@@ -1074,19 +1096,17 @@
           <div class="question-copy">
             <p>Please answer the following questions verbally for the researcher.</p>
             <ul class="question-list">
-              <li>Which emails felt most trustworthy or untrustworthy, and why?</li>
-              <li>What specific cues did you notice in the sender, subject line, wording, tone, or links?</li>
-              <li>Did any message feel automated, assisted by AI, or unusually polished? What made you think so?</li>
-              <li>What actions would you have taken for each email in a real workplace setting?</li>
-              <li>How confident did you feel while judging the emails?</li>
+              <li>Looking back at all of the emails you reviewed, what factors influenced your judgments and decisions the most?</li>
+              <li>Was there any email that you found particularly trustworthy or particularly suspicious? Why?</li>
+              <li>Is there anything else you noticed during the task that influenced the way you evaluated the emails?</li>
+              ${primedQuestion}
             </ul>
             <div class="debrief-box">
               <strong>Ethical debrief:</strong>
-              <p>This task included simulated phishing emails for research purposes. Email 3 and Email 4 were designed as phishing simulations. The links were mock links only; no information was collected, submitted, or transmitted. The purpose of these simulations is to study how people interpret workplace emails and identify potentially unsafe requests in a controlled research setting.</p>
+              <p>This task included simulated phishing emails and diverse communication styles for research purposes. Email 3 and Email 4 were designed as phishing simulations. Furthermore, some emails were also intentionally written to reflect different styles of workplace communication, including AI-assisted and AI-generated communication. The links provided were mock links only; no information was collected, submitted, or transmitted. The purpose of these simulations is to study how people interpret workplace emails and make sense of them under email overload in a controlled research setting.</p>
             </div>
           </div>
-        `,
-        `<button class="btn secondary" id="resetSimulation">Reset simulation</button>`
+        `
       );
     }
 
@@ -1148,14 +1168,13 @@
       const groupLabel = state.group === "primed" ? "Primed" : state.group === "control" ? "Control" : "None";
       const orderLabel = state.sequence.length ? sequenceCode() : "None";
 
-      researchPanel.textContent = `G: ${groupLabel} | N: ${number} | C: ${currentId}${condition !== "None" ? " / " + condition : ""} | O: ${orderLabel}`;
+      researchPanel.innerHTML = `G: ${groupLabel} | N: ${number} | C: ${currentId}${condition !== "None" ? " / " + condition : ""} | O: ${orderLabel} <button class="research-reset-btn" id="resetSystemBtn">[Reset System]</button>`;
       researchPanel.classList.toggle("visible", state.researcherVisible);
     }
 
     function resetSimulation() {
       try { sessionStorage.removeItem("heraEmailSimulation"); } catch (error) {}
-      prepareManualStartup();
-      render();
+      window.location.href = window.location.pathname + "?mode=researcher";
     }
 
     function prepareManualStartup() {
@@ -1209,7 +1228,7 @@
         return;
       }
 
-      if (event.target.closest("#resetSimulation")) {
+      if (event.target.closest("#resetSimulation") || event.target.closest(".research-reset-btn")) {
         resetSimulation();
       }
     });
@@ -1226,12 +1245,6 @@
       }
     });
 
-    cornerHotspot.addEventListener("dblclick", () => {
-      state.researcherVisible = !state.researcherVisible;
-      saveProgress();
-      updateResearchPanel();
-    });
-
     closeModal.addEventListener("click", () => {
       mockModal.classList.remove("visible");
     });
@@ -1241,12 +1254,31 @@
     });
 
     window.onload = function () {
-      const initializedFromUrl = initializeFromUrl();
-      if (!initializedFromUrl) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("mode") === "researcher") {
         try { sessionStorage.removeItem("heraEmailSimulation"); } catch (error) {}
         prepareManualStartup();
+        render();
+      } else {
+        const initializedFromUrl = initializeFromUrl();
+        if (!initializedFromUrl) {
+          loadProgress();
+          if (!state.group || !state.sequence || !state.sequence.length) {
+            Object.assign(state, {
+              screen: "briefing",
+              group: "control",
+              sequence: ["Email 1", "Email 2", "Email 3", "Email 4"],
+              mainIndex: 0,
+              openedEmail: null,
+              completed: [],
+              researcherVisible: false,
+              warmupOpened: false
+            });
+            saveProgress();
+          }
+        }
+        render();
       }
-      render();
     };
   </script>
 </body>
