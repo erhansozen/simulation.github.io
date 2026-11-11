@@ -1,1289 +1,913 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hera Logistics Email Review Simulation</title>
-  <style>
-    :root {
-      --bg: #f5f7fa;
-      --panel: #ffffff;
-      --panel-soft: #f8fafc;
-      --border: #d8dee8;
-      --border-strong: #b8c2d1;
-      --text: #182230;
-      --muted: #667085;
-      --muted-2: #8a94a6;
-      --brand: #22577a;
-      --brand-dark: #16415f;
-      --brand-soft: #e8f1f6;
-      --accent: #2f6f62;
-      --warning: #b54708;
-      --danger: #b42318;
-      --shadow: 0 18px 45px rgba(24, 34, 48, 0.12);
-      --radius: 8px;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    * { box-sizing: border-box; }
-
-    html, body {
-      margin: 0;
-      min-height: 100%;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    body {
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    button, input, select {
-      font: inherit;
-    }
-
-    button {
-      border: 0;
-      cursor: pointer;
-    }
-
-    .app-shell {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .topbar {
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      background: #12384f;
-      color: #fff;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
-    }
-
-    .brand-lockup {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .brand-mark {
-      width: 30px;
-      height: 30px;
-      border-radius: 6px;
-      display: grid;
-      place-items: center;
-      background: #2f6f62;
-      color: #fff;
-      font-weight: 800;
-      letter-spacing: 0;
-      flex: 0 0 auto;
-    }
-
-    .brand-title {
-      font-size: 15px;
-      font-weight: 650;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .topbar-meta {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-      color: rgba(255, 255, 255, 0.82);
-      font-size: 13px;
-      min-width: 0;
-    }
-
-    .workspace {
-      flex: 1;
-      display: grid;
-      place-items: center;
-      padding: 32px 18px;
-    }
-
-    .screen-card {
-      width: min(860px, 100%);
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .screen-header {
-      padding: 22px 26px;
-      border-bottom: 1px solid var(--border);
-      background: var(--panel-soft);
-    }
-
-    .screen-kicker {
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 7px;
-    }
-
-    h1, h2, h3, p { margin-top: 0; }
-
-    h1 {
-      font-size: 28px;
-      line-height: 1.16;
-      margin-bottom: 8px;
-      letter-spacing: 0;
-    }
-
-    h2 {
-      font-size: 22px;
-      line-height: 1.2;
-      margin-bottom: 8px;
-      letter-spacing: 0;
-    }
-
-    h3 {
-      font-size: 15px;
-      margin-bottom: 8px;
-    }
-
-    .screen-body {
-      padding: 26px;
-    }
-
-    .muted { color: var(--muted); }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px;
-      margin: 20px 0 10px;
-    }
-
-    .field label {
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: #344054;
-    }
-
-    .field select {
-      width: 100%;
-      min-height: 42px;
-      border: 1px solid var(--border-strong);
-      border-radius: 7px;
-      padding: 0 12px;
-      background: #fff;
-      color: var(--text);
-    }
-
-    .info-list {
-      display: grid;
-      gap: 12px;
-      margin: 20px 0;
-    }
-
-    .info-row {
-      display: grid;
-      grid-template-columns: 170px 1fr;
-      gap: 12px;
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      background: #fff;
-    }
-
-    .label {
-      color: var(--muted);
-      font-weight: 650;
-    }
-
-    .button-row {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 10px;
-      padding: 18px 26px;
-      border-top: 1px solid var(--border);
-      background: var(--panel-soft);
-    }
-
-    .btn {
-      min-height: 40px;
-      border-radius: 7px;
-      padding: 0 16px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-weight: 700;
-      color: #fff;
-      background: var(--brand);
-    }
-
-    .btn:hover { background: var(--brand-dark); }
-
-    .btn.secondary {
-      color: var(--brand);
-      background: #fff;
-      border: 1px solid var(--border-strong);
-    }
-
-    .btn.secondary:hover {
-      background: var(--brand-soft);
-    }
-
-    .briefing-copy p,
-    .question-copy p {
-      margin-bottom: 14px;
-    }
-
-    .instruction-list {
-      display: grid;
-      gap: 10px;
-      margin: 18px 0 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .instruction-list li {
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      background: #fff;
-    }
-
-    .mail-shell {
-      flex: 1;
-      width: 100%;
-      min-height: calc(100vh - 56px);
-      display: grid;
-      grid-template-columns: 280px minmax(0, 1fr);
-      background: var(--bg);
-    }
-
-    .mail-sidebar {
-      border-right: 1px solid var(--border);
-      background: #fff;
-      min-height: calc(100vh - 56px);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .folder-header {
-      padding: 18px 18px 12px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .folder-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      font-weight: 750;
-      font-size: 18px;
-    }
-
-    .unread-pill {
-      min-width: 28px;
-      height: 22px;
-      border-radius: 999px;
-      display: inline-grid;
-      place-items: center;
-      padding: 0 8px;
-      font-size: 12px;
-      background: var(--brand);
-      color: #fff;
-    }
-
-    .folder-subtitle {
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .email-list {
-      overflow: auto;
-      padding: 8px;
-    }
-
-    .email-item {
-      width: 100%;
-      min-height: 76px;
-      text-align: left;
-      border-radius: 7px;
-      background: transparent;
-      padding: 12px;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 8px;
-      color: var(--text);
-      border: 1px solid transparent;
-    }
-
-    .email-item:hover {
-      background: #eef5f8;
-      border-color: #d4e4ec;
-    }
-
-    .email-item.active {
-      background: var(--brand-soft);
-      border-color: #bcd5e2;
-    }
-
-    .email-item.read {
-      color: var(--muted);
-      opacity: 0.78;
-    }
-
-    .email-item.filler {
-      opacity: 0.58;
-    }
-
-    .email-sender {
-      font-size: 13px;
-      font-weight: 760;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .email-subject {
-      font-size: 14px;
-      margin-top: 3px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .email-snippet {
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 3px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      margin-top: 5px;
-      border-radius: 999px;
-      background: var(--brand);
-    }
-
-    .status-dot.read {
-      background: #cbd5e1;
-    }
-
-    .reading-pane {
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      background: #fff;
-    }
-
-    .pane-toolbar {
-      min-height: 58px;
-      padding: 10px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      border-bottom: 1px solid var(--border);
-      background: var(--panel-soft);
-    }
-
-    .pane-toolbar-title {
-      min-width: 0;
-      font-weight: 750;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .message {
-      width: min(880px, 100%);
-      padding: 34px 38px;
-    }
-
-    .message-meta {
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 22px;
-    }
-
-    .message-subject {
-      font-size: 25px;
-      line-height: 1.2;
-      margin-bottom: 14px;
-      letter-spacing: 0;
-    }
-
-    .message-line {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 4px;
-    }
-
-    .message-body {
-      max-width: 720px;
-      white-space: pre-line;
-      font-size: 15px;
-      color: #263442;
-    }
-
-    .message-link {
-      color: #175cd3;
-      text-decoration: underline;
-      font-weight: 650;
-      cursor: pointer;
-      overflow-wrap: anywhere;
-    }
-
-    .empty-pane {
-      flex: 1;
-      display: grid;
-      place-items: center;
-      padding: 28px;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    .empty-pane-inner {
-      max-width: 420px;
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.42);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 30;
-    }
-
-    .modal-backdrop.visible {
-      display: flex;
-    }
-
-    .modal {
-      width: min(440px, 100%);
-      background: #fff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      overflow: hidden;
-    }
-
-    .modal-body {
-      padding: 22px;
-    }
-
-    .modal-body h2 {
-      font-size: 19px;
-      margin-bottom: 8px;
-    }
-
-    .mock-address {
-      display: block;
-      padding: 10px 12px;
-      border-radius: 7px;
-      background: #f1f5f9;
-      color: #344054;
-      overflow-wrap: anywhere;
-      margin: 14px 0;
-      font-size: 13px;
-    }
-
-    .research-panel {
-      position: fixed;
-      right: 8px;
-      bottom: 6px;
-      width: auto;
-      max-width: calc(100vw - 16px);
-      background: transparent;
-      color: rgba(24, 34, 48, 0.52);
-      border: 0;
-      border-radius: 0;
-      box-shadow: none;
-      padding: 0;
-      z-index: 40;
-      display: none;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-      font-size: 11px;
-      line-height: 1.35;
-      pointer-events: none;
-    }
-
-    .research-panel.visible {
-      display: block;
-    }
-
-    .research-reset-btn {
-      background: none;
-      border: none;
-      color: #b42318;
-      text-decoration: underline;
-      cursor: pointer;
-      padding: 0;
-      font-family: inherit;
-      font-size: inherit;
-      margin-left: 8px;
-      pointer-events: auto;
-    }
-
-    .research-reset-btn:hover {
-      color: #901a12;
-    }
-
-    .debrief-box {
-      border: 1px solid #f2c98a;
-      background: #fff7e8;
-      color: #613b0f;
-      padding: 14px;
-      border-radius: 7px;
-      margin-top: 18px;
-    }
-
-    .question-list {
-      display: grid;
-      gap: 12px;
-      padding: 0;
-      margin: 18px 0 0;
-      list-style: none;
-    }
-
-    .question-list li {
-      padding: 13px 14px;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      background: #fff;
-    }
-
-    @media (max-width: 760px) {
-      .topbar {
-        padding: 0 14px;
-      }
-
-      .topbar-meta {
-        display: none;
-      }
-
-      .workspace {
-        padding: 18px 12px;
-      }
-
-      .screen-header,
-      .screen-body,
-      .button-row {
-        padding-left: 18px;
-        padding-right: 18px;
-      }
-
-      h1 { font-size: 23px; }
-
-      .form-grid,
-      .info-row {
-        grid-template-columns: 1fr;
-      }
-
-      .mail-shell {
-        grid-template-columns: 1fr;
-      }
-
-      .mail-sidebar {
-        min-height: auto;
-        max-height: 44vh;
-        border-right: 0;
-        border-bottom: 1px solid var(--border);
-      }
-
-      .message {
-        padding: 24px 18px;
-      }
-
-      .message-subject {
-        font-size: 21px;
-      }
-
-      .pane-toolbar {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hera Logistics – Mail</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:          #f3f4f6;
+    --surface:     #ffffff;
+    --sidebar-bg:  #1e293b;
+    --sidebar-txt: #cbd5e1;
+    --border:      #e2e8f0;
+    --text-main:   #1e293b;
+    --text-muted:  #64748b;
+    --accent:      #2563eb;
+    --accent-light:#eff6ff;
+    --row-hover:   #f8fafc;
+    --row-unread:  #eff6ff;
+    --btn:         #2563eb;
+    --btn-txt:     #ffffff;
+    --btn-ghost:   #f1f5f9;
+    --input-border:#cbd5e1;
+    --shadow-sm:   0 1px 3px rgba(0,0,0,.08);
+    --shadow-md:   0 4px 16px rgba(0,0,0,.10);
+    --radius:      8px;
+    --font-sans:   'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-mono:   'Cascadia Code', 'Fira Mono', monospace;
+  }
+  html, body { height: 100%; font-family: var(--font-sans); background: var(--bg); color: var(--text-main); font-size: 14px; line-height: 1.5; }
+  .hidden { display: none !important; }
+  .w-full { width: 100%; }
+  .font-semibold { font-weight: 600; }
+  .text-muted { color: var(--text-muted); }
+  .mt-2 { margin-top: 8px; }
+  .mt-4 { margin-top: 16px; }
+  .mb-4 { margin-bottom: 16px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 9px 20px; border-radius: 6px; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: none; transition: background .15s, box-shadow .15s, transform .08s;
+    letter-spacing: .01em;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--btn); color: var(--btn-txt); }
+  .btn-primary:hover { background: #1d4ed8; box-shadow: 0 2px 8px rgba(37,99,235,.3); }
+  .btn-ghost { background: var(--btn-ghost); color: var(--text-main); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: #e2e8f0; }
+  .btn-sm { padding: 6px 14px; font-size: 13px; }
+
+  label { font-weight: 600; font-size: 13px; color: var(--text-main); display: block; margin-bottom: 4px; }
+  select, input[type=text] {
+    width: 100%; padding: 9px 12px; border: 1.5px solid var(--input-border);
+    border-radius: 6px; font-size: 14px; background: var(--surface);
+    color: var(--text-main); outline: none; transition: border .15s;
+  }
+  select:focus, input[type=text]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+  .form-group { margin-bottom: 18px; }
+
+  .card {
+    background: var(--surface); border-radius: var(--radius);
+    border: 1px solid var(--border); padding: 32px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .screen {
+    position: fixed; inset: 0; overflow-y: auto;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: var(--bg); padding: 32px 16px;
+    animation: fadeIn .25s ease;
+  }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: none; } }
+  .screen-inner { width: 100%; max-width: 680px; }
+  .screen-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; color: var(--text-main); }
+  .screen-sub   { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+
+  .logo-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .logo-mark {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800; font-size: 18px; letter-spacing: -1px;
+  }
+  .logo-name { font-size: 18px; font-weight: 700; color: var(--text-main); }
+  .logo-domain { font-size: 12px; color: var(--text-muted); }
+
+  /* Setup screen (researcher-only, dark) */
+  #screen-setup { background: #0f172a; }
+  #screen-setup .card { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+  #screen-setup label { color: #94a3b8; }
+  #screen-setup select { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+  #screen-setup .screen-title { color: #f1f5f9; }
+  #screen-setup .screen-sub   { color: #64748b; }
+  #screen-setup .logo-name    { color: #f1f5f9; }
+  #screen-setup .logo-domain  { color: #475569; }
+  .setup-badge {
+    display: inline-block; background: #7c3aed22; color: #a78bfa;
+    border: 1px solid #7c3aed44; border-radius: 20px;
+    font-size: 11px; font-weight: 700; letter-spacing: .08em;
+    padding: 3px 10px; text-transform: uppercase; margin-bottom: 20px;
+  }
+  .link-box {
+    background: #0f172a; border: 1px solid #334155; border-radius: 6px;
+    padding: 12px 14px; font-family: var(--font-mono); font-size: 12px;
+    color: #93c5fd; word-break: break-all; margin-top: 14px;
+  }
+
+  .briefing-block {
+    background: var(--accent-light); border-left: 4px solid var(--accent);
+    border-radius: 0 6px 6px 0; padding: 14px 16px; margin-bottom: 18px;
+  }
+  .briefing-block p { margin-bottom: 6px; }
+  .briefing-block p:last-child { margin-bottom: 0; }
+  .info-list { list-style: none; }
+  .info-list li { padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
+  .info-list li:last-child { border-bottom: none; }
+  .info-list .info-key { color: var(--text-muted); min-width: 120px; font-size: 13px; }
+  .info-list .info-val { font-weight: 600; }
+
+  .instruction-step { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .instruction-step:last-child { border-bottom: none; }
+  .step-num {
+    min-width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; flex-shrink: 0;
+  }
+  .step-text { padding-top: 3px; line-height: 1.6; }
+
+  .notice-box {
+    background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;
+    padding: 16px 20px; display: flex; gap: 12px; align-items: flex-start;
+  }
+  .notice-box .notice-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .notice-box .notice-title { font-weight: 700; color: #166534; margin-bottom: 4px; }
+  .notice-box .notice-text  { color: #15803d; font-size: 13px; line-height: 1.6; }
+
+  .task-box {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 18px 20px; margin-top: 10px;
+  }
+  .task-box .task-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #92400e; margin-bottom: 8px; }
+  .task-box .task-question { font-size: 17px; font-weight: 700; color: #1e293b; }
+
+  .neutral-text-box {
+    background: var(--accent-light); border: 1px solid #bfdbfe; border-radius: 8px;
+    padding: 18px 20px; font-size: 14.5px; line-height: 1.8; color: #1e293b;
+  }
+
+  /* Email app layout */
+  #screen-inbox { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--bg); }
+  .topbar {
+    height: 52px; background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 20px; gap: 16px;
+    flex-shrink: 0; z-index: 10; box-shadow: var(--shadow-sm);
+  }
+  .topbar-logo { display: flex; align-items: center; gap: 8px; }
+  .topbar-logo-mark {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800; font-size: 13px;
+  }
+  .topbar-brand { font-weight: 700; font-size: 15px; color: var(--text-main); }
+  .topbar-domain { font-size: 11px; color: var(--text-muted); }
+  .topbar-spacer { flex: 1; }
+  .topbar-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: #fff; font-weight: 700; font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: default; flex-shrink: 0;
+  }
+  .topbar-user { font-size: 13px; }
+  .topbar-user .name  { font-weight: 600; }
+  .topbar-user .email { color: var(--text-muted); font-size: 11px; }
+
+  .inbox-body { flex: 1; display: flex; overflow: hidden; }
+  .sidebar {
+    width: 180px; flex-shrink: 0;
+    background: var(--sidebar-bg); color: var(--sidebar-txt);
+    display: flex; flex-direction: column; overflow-y: auto; padding: 12px 0;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 18px; font-size: 13px; color: var(--sidebar-txt);
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item.active { background: #1e3a5f; color: #93c5fd; font-weight: 600; border-left-color: #2563eb; }
+  .sidebar-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: .7; }
+  .sidebar-item.active svg { opacity: 1; }
+  .sidebar-badge {
+    margin-left: auto; background: var(--accent); color: #fff;
+    font-size: 10px; font-weight: 700; border-radius: 10px;
+    padding: 1px 7px; min-width: 20px; text-align: center;
+  }
+
+  .email-list-panel {
+    width: 320px; flex-shrink: 0; border-right: 1px solid var(--border);
+    background: var(--surface); display: flex; flex-direction: column; overflow: hidden;
+  }
+  .email-list-header {
+    padding: 14px 16px 10px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .email-list-title { font-size: 15px; font-weight: 700; }
+  .email-list-count { font-size: 12px; color: var(--text-muted); }
+  .email-list-body  { overflow-y: auto; flex: 1; }
+
+  .email-row { padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .12s; position: relative; }
+  .email-row:hover { background: var(--row-hover); }
+  .email-row.unread { background: var(--row-unread); }
+  .email-row.selected { background: #dbeafe; }
+  .email-row.disabled { cursor: default; opacity: .55; }
+  .email-row-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; margin-bottom: 3px; }
+  .email-sender { font-size: 13px; font-weight: 600; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .email-time { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+  .email-subject { font-size: 13px; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .email-row.unread .email-subject { font-weight: 600; }
+  .email-preview { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .unread-dot { position: absolute; left: 5px; top: 50%; transform: translateY(-50%); width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .email-row.read { opacity: .65; }
+
+  .reading-pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--surface); }
+  .reading-pane-empty { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; color: var(--text-muted); gap: 10px; }
+  .reading-pane-empty svg { width: 48px; height: 48px; opacity: .25; }
+  .reading-toolbar { padding: 10px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; flex-shrink: 0; background: var(--surface); }
+  .reading-content { flex: 1; overflow-y: auto; padding: 28px 32px; }
+  .email-header-block { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .email-subject-line { font-size: 20px; font-weight: 700; margin-bottom: 14px; color: var(--text-main); }
+  .email-meta-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 8px; }
+  .email-avatar-lg {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 16px;
+  }
+  .email-meta-details { flex: 1; }
+  .email-from-name { font-weight: 700; font-size: 14px; }
+  .email-from-addr { font-size: 12px; color: var(--text-muted); }
+  .email-to-line   { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .email-date-line { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+  .email-body-text { font-size: 14.5px; line-height: 1.75; color: #1e293b; white-space: pre-wrap; word-break: break-word; }
+
+  .prompt-box { border: 1px solid var(--input-border); background: #fff; padding: 16px 18px; border-radius: 8px; margin-top: 16px; }
+  .prompt-box .q-label { font-weight: 700; margin-bottom: 10px; }
+  .prompt-box ul { list-style: none; display: grid; gap: 10px; }
+  .prompt-box li { padding: 10px 12px; background: var(--accent-light); border-radius: 6px; font-size: 14px; }
+
+  .progress-bar-wrap { display: flex; gap: 4px; align-items: center; }
+  .progress-pip { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; transition: background .3s; }
+  .progress-pip.done  { background: #22c55e; }
+  .progress-pip.active { background: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.2); }
+
+  .inbox-screen { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--bg); }
+
+  #researcher-panel {
+    position: fixed; bottom: 16px; right: 16px; z-index: 500;
+    background: #0f172a; color: #94a3b8; border: 1px solid #334155;
+    border-radius: 10px; padding: 14px 18px; min-width: 240px;
+    font-family: var(--font-mono); font-size: 12px; line-height: 1.8;
+    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  }
+  #researcher-panel .rp-title { font-weight: 700; color: #a78bfa; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
+  #researcher-panel .rp-row span:first-child { color: #475569; min-width: 70px; display: inline-block; }
+  #researcher-panel .rp-row span:last-child  { color: #e2e8f0; font-weight: 600; }
+  .rp-close { position: absolute; top: 8px; right: 10px; cursor: pointer; color: #475569; font-size: 14px; }
+  .rp-close:hover { color: #94a3b8; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  @media (max-width: 900px) {
+    .sidebar { width: 52px; }
+    .sidebar-item span:not(.sidebar-badge) { display: none; }
+    .email-list-panel { width: 260px; }
+  }
+</style>
 </head>
 <body>
-  <div id="app" class="app-shell"></div>
 
-  <aside id="researchPanel" class="research-panel" aria-live="polite"></aside>
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 0 – RESEARCHER SETUP (only used by the researcher
+     to generate a session link; participants never see this
+     screen — see note below and Section 3.1.4 of the proposal).
+═══════════════════════════════════════════════════════════ -->
+<div id="screen-setup" class="screen">
+  <div class="screen-inner" style="max-width:520px">
+    <div class="logo-bar">
+      <div class="logo-mark">HL</div>
+      <div><div class="logo-name">Hera Logistics</div><div class="logo-domain">heralogistics.com</div></div>
+    </div>
+    <div class="setup-badge">🔬 Researcher Only — Not Part of the Session</div>
+    <div class="card">
+      <h1 class="screen-title" style="color:#f1f5f9">Generate a Session Link</h1>
+      <p class="screen-sub">Participants never see this screen. Pick the condition and email order assigned to this participant, then copy the link below and send that exact link before the Zoom call. Opening the plain page URL (with no parameters) shows this setup screen only for your own testing.</p>
 
-  <div id="mockModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="mockModalTitle">
-    <div class="modal">
-      <div class="modal-body">
-        <h2 id="mockModalTitle">Simulated external page</h2>
-        <p class="muted">This is a mock interaction for the email review task. No information has been submitted or transmitted.</p>
-        <code id="mockAddress" class="mock-address"></code>
+      <div class="form-group">
+        <label for="sel-group">Condition</label>
+        <select id="sel-group" onchange="updateLink()">
+          <option value="control">Control condition</option>
+          <option value="ai">AI-awareness condition</option>
+        </select>
       </div>
-      <div class="button-row">
-        <button class="btn" id="closeModal">Close</button>
+
+      <div class="form-group">
+        <label for="sel-order">Email order (randomised in blocks of six, Section 3.2)</label>
+        <select id="sel-order" onchange="updateLink()">
+          <option value="123">1 → 2 → 3</option>
+          <option value="132">1 → 3 → 2</option>
+          <option value="213">2 → 1 → 3</option>
+          <option value="231">2 → 3 → 1</option>
+          <option value="312">3 → 1 → 2</option>
+          <option value="321">3 → 2 → 1</option>
+        </select>
+      </div>
+
+      <div class="link-box" id="generated-link">(link will appear here)</div>
+
+      <button class="btn btn-primary w-full" style="margin-top:14px" onclick="copyLink()">Copy link</button>
+      <button class="btn btn-ghost w-full" style="margin-top:8px" onclick="startFromSetup()">Preview this configuration here &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 1 – CONSENT
+═══════════════════════════════════════════════════════════ -->
+<div id="screen-consent" class="screen hidden">
+  <div class="screen-inner">
+    <div class="logo-bar">
+      <div class="logo-mark">HL</div>
+      <div><div class="logo-name">Hera Logistics</div><div class="logo-domain">www.heralogistics.com</div></div>
+    </div>
+    <h1 class="screen-title">Before We Begin</h1>
+    <p class="screen-sub">Consent and session overview.</p>
+    <div class="card">
+      <p class="mb-4">Thank you for taking part in this study. Your participation is voluntary, and you may stop at any time without giving a reason and without any consequences.</p>
+      <p class="mb-4">The session will last about 45 minutes and will be recorded locally (audio) with your consent, for transcription purposes only. The recording is deleted once the anonymised transcript has been checked. Transcripts contain no names or identifying details.</p>
+      <p class="mb-4">You will be asked to share your screen and open a simulated company inbox. There is nothing to install, and no information you type is transmitted anywhere.</p>
+      <p class="text-muted" style="font-size:13px"><em>[Full consent text to be inserted once finalised with the ethics approval.]</em></p>
+    </div>
+    <div style="display:flex; justify-content:flex-end; margin-top:16px">
+      <button class="btn btn-primary" onclick="showScreen('warmup1')">I consent, continue &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 2 – WARM-UP TASK 1 (short problem, Section 3.1.4)
+═══════════════════════════════════════════════════════════ -->
+<div id="screen-warmup1" class="screen hidden">
+  <div class="screen-inner">
+    <div class="logo-bar">
+      <div class="logo-mark">HL</div>
+      <div><div class="logo-name">Warm-up</div><div class="logo-domain">Task 1 of 2</div></div>
+    </div>
+    <h1 class="screen-title">A Short Question</h1>
+    <p class="screen-sub">Before we start, here is a short warm-up task to get used to thinking aloud.</p>
+    <div class="card">
+      <p class="mb-4"><strong>Please say out loud, step by step, how you work out the answer</strong> — there is no need to give the final answer quickly, just describe how you are thinking about it.</p>
+      <div class="task-box">
+        <div class="task-label">Task</div>
+        <div class="task-question">What is the fourth letter before M in the alphabet?</div>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:flex-end; margin-top:16px">
+      <button class="btn btn-primary" onclick="showScreen('warmup2')">Continue &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 3 – WARM-UP TASK 2 (neutral text, Section 3.1.4)
+═══════════════════════════════════════════════════════════ -->
+<div id="screen-warmup2" class="screen hidden">
+  <div class="screen-inner">
+    <div class="logo-bar">
+      <div class="logo-mark">HL</div>
+      <div><div class="logo-name">Warm-up</div><div class="logo-domain">Task 2 of 2</div></div>
+    </div>
+    <h1 class="screen-title">A Short Text</h1>
+    <p class="screen-sub">Please read the text below out loud, and say anything that comes to mind as you read — just as you will do later with the emails.</p>
+    <div class="card">
+      <div class="neutral-text-box">The town library has started a small seed-sharing shelf near the entrance. Visitors can take a packet of vegetable or flower seeds and, later in the year, leave some of their own harvest for others. The shelf was built by a local carpentry class, and a volunteer refills the labels every week. So far, tomatoes and sunflowers have been the most popular choices.</div>
+    </div>
+    <div style="display:flex; justify-content:flex-end; margin-top:16px">
+      <button class="btn btn-primary" onclick="showScreen('scenario')">Continue &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 4 – WORKPLACE SCENARIO (Appendix B1)
+═══════════════════════════════════════════════════════════ -->
+<div id="screen-scenario" class="screen hidden">
+  <div class="screen-inner">
+    <div class="logo-bar">
+      <div class="logo-mark">HL</div>
+      <div><div class="logo-name">Hera Logistics</div><div class="logo-domain">www.heralogistics.com</div></div>
+    </div>
+    <h1 class="screen-title">Your Role Today</h1>
+    <p class="screen-sub">Workplace scenario.</p>
+    <div class="card" style="margin-bottom:16px">
+      <p class="font-semibold mb-4" style="font-size:15px">Your identity for this study:</p>
+      <ul class="info-list">
+        <li><span class="info-key">Name</span><span class="info-val">Alex Weber</span></li>
+        <li><span class="info-key">Role</span><span class="info-val">Project Support Coordinator</span></li>
+        <li><span class="info-key">Company</span><span class="info-val">Hera Logistics GmbH (Linz &amp; Graz)</span></li>
+        <li><span class="info-key">Your email</span><span class="info-val">alex.weber@heralogistics.com</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <p id="scenario-text" style="line-height:1.8"></p>
+    </div>
+    <div style="display:flex; justify-content:flex-end; margin-top:16px">
+      <button class="btn btn-primary" onclick="showScreen('instructions')">Continue &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 5 – THINK-ALOUD INSTRUCTIONS (Section 3.1.4)
+═══════════════════════════════════════════════════════════ -->
+<div id="screen-instructions" class="screen hidden">
+  <div class="screen-inner">
+    <div class="logo-bar">
+      <div class="logo-mark">HL</div>
+      <div><div class="logo-name">Hera Logistics</div><div class="logo-domain">Think-Aloud Task</div></div>
+    </div>
+    <h1 class="screen-title">Instructions</h1>
+    <p class="screen-sub">In a moment, you will see your inbox with one unread email.</p>
+    <div class="card">
+      <div class="instruction-step">
+        <div class="step-num">1</div>
+        <div class="step-text">Read the email <strong>as if you had received it at work</strong>.</div>
+      </div>
+      <div class="instruction-step">
+        <div class="step-num">2</div>
+        <div class="step-text">Say out loud <strong>everything that goes through your mind</strong> as you read it.</div>
+      </div>
+      <div class="instruction-step">
+        <div class="step-num">3</div>
+        <div class="step-text">At the end, say <strong>what you would do with it</strong>, as if you were speaking to yourself.</div>
+      </div>
+      <div class="instruction-step">
+        <div class="step-num">4</div>
+        <div class="step-text">After you have read an email, let the researcher know and the <strong>next email</strong> will appear.</div>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:flex-end; margin-top:16px">
+      <button class="btn btn-primary" onclick="startMainTask()">Open inbox &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 6 – MAIN INBOX
+═══════════════════════════════════════════════════════════ -->
+<div id="screen-inbox" class="hidden inbox-screen">
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-logo-mark">HL</div>
+      <div><div class="topbar-brand">Hera Logistics Mail</div><div class="topbar-domain">heralogistics.com</div></div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-user"><div class="name">Alex Weber</div><div class="email">alex.weber@heralogistics.com</div></div>
+    <div class="topbar-avatar">AW</div>
+  </div>
+
+  <div class="inbox-body">
+    <div class="sidebar">
+      <div class="sidebar-item active">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        <span>Inbox</span>
+        <span class="sidebar-badge" id="unread-badge">1</span>
+      </div>
+    </div>
+
+    <div class="email-list-panel">
+      <div class="email-list-header">
+        <div>
+          <div class="email-list-title">Inbox</div>
+          <div class="email-list-count" id="list-count"></div>
+        </div>
+        <div class="progress-bar-wrap" id="progress-pips"></div>
+      </div>
+      <div class="email-list-body" id="email-list-body"></div>
+    </div>
+
+    <div class="reading-pane" id="reading-pane">
+      <div class="reading-pane-empty" id="reading-empty">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        <p>Select the unread email to read it</p>
+      </div>
+      <div id="reading-content-wrap" class="hidden" style="flex-direction:column;height:100%;overflow:hidden;">
+        <div class="reading-toolbar">
+          <button class="btn btn-ghost btn-sm" id="btn-next-email">Next email &rarr;</button>
+        </div>
+        <div class="reading-content" id="reading-content"></div>
       </div>
     </div>
   </div>
+</div>
 
-  <script>
-    const app = document.getElementById("app");
-    const researchPanel = document.getElementById("researchPanel");
-    const mockModal = document.getElementById("mockModal");
-    const mockAddress = document.getElementById("mockAddress");
-    const closeModal = document.getElementById("closeModal");
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 7 – PROMPTED ACCOUNTS (after the third email)
+═══════════════════════════════════════════════════════════ -->
+<div id="screen-prompted" class="screen hidden">
+  <div class="screen-inner">
+    <div class="logo-bar">
+      <div class="logo-mark">HL</div>
+      <div><div class="logo-name">A Quick Look Back</div><div class="logo-domain" id="prompted-counter">Email 1 of 3</div></div>
+    </div>
+    <h1 class="screen-title" id="prompted-title">Follow-up Question</h1>
+    <p class="screen-sub">Here is the email again, shown in the order you read it.</p>
+    <div class="card" style="margin-bottom:16px">
+      <div class="email-header-block" style="margin-bottom:12px; padding-bottom:12px;">
+        <div class="email-subject-line" id="prompted-subject" style="font-size:17px"></div>
+        <div class="text-muted" id="prompted-from" style="font-size:13px"></div>
+      </div>
+      <div class="email-body-text" id="prompted-body"></div>
+      <div class="prompt-box">
+        <div class="q-label">Please answer out loud:</div>
+        <ul>
+          <li id="prompted-q1"></li>
+          <li id="prompted-q2"></li>
+        </ul>
+      </div>
+    </div>
+    <div style="display:flex; justify-content:flex-end">
+      <button class="btn btn-primary" id="prompted-next-btn" onclick="advancePrompt()">Next email &rarr;</button>
+    </div>
+  </div>
+</div>
 
-    const emailKeys = ["Email 1", "Email 2", "Email 3", "Email 4"];
+<!-- ══════════════════════════════════════════════════════════
+     SCREEN 8 – CLOSING (debriefing is asked verbally by the
+     researcher after this — not shown on screen, so as not to
+     announce the follow-up questions in advance; Section 3.1.4)
+═══════════════════════════════════════════════════════════ -->
+<div id="screen-closing" class="screen hidden">
+  <div class="screen-inner" style="max-width:520px; text-align:center">
+    <div class="logo-mark" style="margin:0 auto 20px; width:56px; height:56px; font-size:24px">HL</div>
+    <h1 class="screen-title" style="text-align:center; font-size:26px; margin-bottom:12px">Thank you.</h1>
+    <p style="color:var(--text-muted); font-size:16px; line-height:1.7">You have now reviewed all three emails and answered the follow-up questions. The researcher will now ask a few closing questions — you can stop sharing your screen now if you like.</p>
+  </div>
+</div>
 
-    const experimentalEmails = {
-      "Email 1": {
-        id: "Email 1",
-        condition: "Legitimate Human",
-        sender: "max.mueller@heralogistics.com",
-        subject: "Small update on Vienna deliveries",
-        content: "Hi Alex,\n\nI wanted to check in regarding the Vienna delivery schedule for next week. We received a small update from the transport team this morning, and I'm trying to make sure we have the latest information before finalizing the coordination plan.\n\nCould you take a quick look at the current schedule and let me know if there are any changes on your side, especially regarding timing or delivery priorities?\n\nNo rush today, but it would help if we could confirm things by tomorrow afternoon.\n\nThanks!\nBest,\nMax M\u00fcller\nOperations Team"
-      },
-      "Email 2": {
-        id: "Email 2",
-        condition: "Legitimate AI-Assisted",
-        sender: "hr@heralogistics.com",
-        subject: "Notification Regarding Updated Annual Leave Request Procedures",
-        content: "Dear Alex,\n\nWe would like to formally inform you about an optimization in the annual leave request procedure at Hera Logistics. In order to facilitate smoother internal scheduling and enhance inter-departmental coordination, all future leave requests submitted from the upcoming month onward should be formally logged through the updated Human Resources internal portal, rather than utilizing the previous email-based process.\n\nPlease be assured that no immediate action is mandatory at this current stage. However, we highly encourage you to review the updated guidelines at your earliest convenience so that your future applications may be processed without any operational delay.\n\nThe comprehensive revised instructions are thoroughly detailed on the internal HR knowledge base and will additionally be presented during next week's corporate team briefing. Should you require any further clarification or have specific inquiries, please feel free to contact the Human Resources Team.\n\nThank you for your time and cooperation in transitioning to this optimized process.\n\nKind regards,\nHR Team\nHera Logistics"
-      },
-      "Email 3": {
-        id: "Email 3",
-        condition: "Traditional Phishing",
-        sender: "support@hera-mailsecurity.com",
-        subject: "URGENT: Verify Your Mailbox Access System Immediately!",
-        content: "Hi,\n\nYour Hera Logistics mailbox has been flagged due to unusual login activity and your mail services may be limited if not confirmed right now.\n\nTo avoid interruption of email services, all employees are requested to verify mailbox access immediately. Failure to complete verification within 24 hours can result in permanent restrictions of your account.\n\nPlease confirm your account information using the secure verification page below:\n\n[[LINK:mail-security-hera.net/verify|mail-security-hera.net/verify]]\n\nWe apologize for inconvenience caused and thank you for cooperation.\n\nIT Mail Support\nHera Logistics"
-      },
-      "Email 4": {
-        id: "Email 4",
-        condition: "AI-Generated Phishing",
-        sender: "it.support@heralogistics-management.com",
-        subject: "Action Required: Updated Access Authentication Process",
-        content: "Hi Alex,\n\nAs part of Hera Logistics' ongoing security improvements, we are introducing an updated authentication process for employee account access.\n\nTo support uninterrupted access to internal systems and ensure alignment with current security standards, employees are asked to confirm their authentication settings through the updated access portal. The process takes only a few minutes and should be completed before the end of this week to avoid temporary access interruptions while the new configuration is being finalized.\n\nPlease review and confirm your settings via our secure cloud portal:\n\n[[LINK:https://sharepoint-heralogistics.com/auth/login|sharepoint-heralogistics.com]]\n\nIf you have already completed this process, no further action is required.\n\nThank you for your cooperation and continued support in maintaining secure access across company systems.\n\nKind regards,\nIT Support\nHera Logistics\nSystems & Access Team"
-      }
-    };
+<!-- ══════════════════════════════════════════════════════════
+     RESEARCHER PANEL (Ctrl+Shift+R to toggle)
+═══════════════════════════════════════════════════════════ -->
+<div id="researcher-panel" style="display:none;">
+  <div class="rp-title">🔬 Researcher Monitor</div>
+  <span class="rp-close" onclick="toggleResearcherPanel()">✕</span>
+  <div class="rp-row"><span>Condition:</span><span id="rp-group">—</span></div>
+  <div class="rp-row"><span>Order:</span><span id="rp-order">—</span></div>
+  <div class="rp-row"><span>Screen:</span><span id="rp-phase">setup</span></div>
+</div>
 
-    const warmupEmail = {
-      id: "P1",
-      condition: "Practice",
-      sender: "facilities@heralogistics.com",
-      subject: "Cafeteria Opening Hours Update",
-      content: "Hi Alex,\n\nPlease note that the cafeteria opening hours will be adjusted next Wednesday due to routine maintenance in the kitchen area.\n\nThe cafeteria will open at 10:30 instead of 08:00. Coffee and packaged snacks will still be available in the second-floor break area during the morning.\n\nRegular opening hours will resume on Thursday.\n\nBest regards,\nFacilities Team\nHera Logistics"
-    };
+<script>
+/* ─────────────────────────────────────────
+   DATA — Appendix B of Proposal V3.3
+───────────────────────────────────────── */
+const CONDITION_SENTENCE = {
+  control: "Many employees at the company work from home and communicate mainly by email.",
+  ai:      "Many employees at the company use AI writing assistants when they write emails."
+};
 
-    const fillerEmails = [
-      ["internal.news@heralogistics.com", "Weekly Operations Newsletter", "Highlights from regional logistics teams and planning updates."],
-      ["procurement@heralogistics.com", "Supplier Documentation Reminder", "Routine reminder about archiving supplier documentation."],
-      ["office.admin@heralogistics.com", "Meeting Room Maintenance Schedule", "Several meeting rooms will be unavailable for brief checks."],
-      ["training@heralogistics.com", "Optional Learning Sessions for June", "New internal learning sessions have been added to the calendar."],
-      ["finance@heralogistics.com", "Expense Submission Cutoff", "Please submit routine expenses before the monthly finance deadline."]
-    ];
+function scenarioText(condition) {
+  const sentence = CONDITION_SENTENCE[condition];
+  return `You are Alex Weber, a Project Support Coordinator at Hera Logistics GmbH, a mid-sized logistics company with sites in Linz and Graz. You joined the company about six months ago. You support the operations team in planning, reporting and internal coordination. You know some of your colleagues well, others only by name. ${sentence} It is Tuesday morning, and you are going through your inbox before your first meeting.`;
+}
 
-    const state = {
-      screen: "setup",
-      group: null,
-      sequence: [],
-      mainIndex: 0,
-      openedEmail: null,
-      completed: [],
-      researcherVisible: false,
-      warmupOpened: false
-    };
+const EMAILS = {
+  E1: {
+    id: 'E1', sender: 'Martina Leitner', role: 'Head of Operations',
+    from: 'martina.leitner@heralogistics.com',
+    subject: 'Q3 throughput figures - Linz and Graz', time: '08:12',
+    preview: 'Please find below a summary of the third-quarter throughput figures for both sites.',
+    body: `Dear Alex,
 
-    function emailKeyFromDigit(digit) {
-      return `Email ${digit}`;
-    }
+Please find below a summary of the third-quarter throughput figures for both sites.
 
-    function digitFromEmailKey(emailKey) {
-      return emailKey.replace("Email ", "");
-    }
+• Linz: 48,200 parcels processed (+6.4% compared with Q2); average handling time 3.1 hours.
+• Graz: 31,750 parcels processed (-2.1% compared with Q2); average handling time 3.8 hours, mainly due to the conveyor maintenance from 12 to 16 August.
 
-    function normalizeGroup(value) {
-      const group = String(value || "").trim().toLowerCase();
-      if (group === "1" || group === "control") return "control";
-      if (group === "2" || group === "primed" || group === "ai" || group === "ai-primed") return "primed";
-      return null;
-    }
+Overall, both sites remain within the targets agreed for 2026. The decline in Graz is expected to be temporary.
 
-    function parseSequence(value) {
-      const digits = String(value || "").replace(/[^1-4]/g, "").split("");
-      const isValid = digits.length === 4 && new Set(digits).size === 4;
-      if (!isValid) return null;
-      return digits.map(emailKeyFromDigit);
-    }
+Could you please forward these figures to Thomas Huber before the team leads' meeting on Thursday? He will need them for the quarterly overview.
 
-    function sequenceCode() {
-      return state.sequence.map(digitFromEmailKey).join("-");
-    }
+Thank you in advance for your support.
 
-    function initializeFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("mode") === "researcher") return false;
-      const group = normalizeGroup(params.get("g"));
-      const sequence = parseSequence(params.get("s"));
-      if (!group || !sequence) return false;
+Kind regards,
+Martina Leitner
+Head of Operations`,
+    q1: 'What impression did you form of Martina?',
+    q2: 'Would you rely on what Martina says or asks in this email?'
+  },
+  E2: {
+    id: 'E2', sender: 'Jonas Berger', role: 'Warehouse Training',
+    from: 'jonas.berger@heralogistics.com',
+    subject: 'Quick favour - scanner checklist', time: '08:37',
+    preview: "Thank you so, so much in advance, I really, really appreciate your help with this...",
+    body: `Hi Alex,
 
-      state.group = group;
-      state.sequence = sequence;
-      state.screen = "briefing";
-      state.mainIndex = 0;
-      state.openedEmail = null;
-      state.completed = [];
-      state.researcherVisible = false;
-      state.warmupOpened = false;
-      saveProgress();
+Thank you so, so much in advance, I really, really appreciate your help with this, it means a lot!
 
-      try {
-        window.history.replaceState(null, "", window.location.pathname);
-      } catch (error) {}
+We met briefly at the scanner roll-out meeting last month (I was the one with the broken laptop 😅). Martina mentioned that you have the latest version of the onboarding checklist for the new hand scanners. Could you send it to me when you have a minute?
 
-      return true;
-    }
+Three new colleagues start in the Linz warehouse next Monday, and I'd like to go through the checklist with them on there first day.
 
-    function saveProgress() {
-      try {
-        sessionStorage.setItem("heraEmailSimulation", JSON.stringify(state));
-      } catch (error) {
-        // In-memory state remains authoritative; storage is only a refresh fallback.
-      }
-    }
+Thanks a million!
+Jonas`,
+    q1: 'What impression did you form of Jonas?',
+    q2: 'Would you rely on what Jonas says or asks in this email?'
+  },
+  E3: {
+    id: 'E3', sender: 'Sophie Kranz', role: 'Project Support',
+    from: 'sophie.kranz@heralogistics.com',
+    subject: 'Thursday planning meeting', time: '08:54',
+    preview: 'I hope this email finds you well and that you had a wonderful start to the week!',
+    body: `Hi Alex,
 
-    function loadProgress() {
-      try {
-        const saved = JSON.parse(sessionStorage.getItem("heraEmailSimulation") || "null");
-        if (saved && saved.group && Array.isArray(saved.sequence) && saved.sequence.length === 4) Object.assign(state, saved);
-      } catch (error) {}
-    }
+I hope this email finds you well and that you had a wonderful start to the week!
 
-    function setScreen(screen) {
-      state.screen = screen;
-      state.openedEmail = null;
-      saveProgress();
-      render();
-    }
+To make our planning meeting on Thursday as productive as possible, here is what I suggest:
 
-    function currentExperimentalId() {
-      if (!state.sequence.length || state.mainIndex >= state.sequence.length) return "Complete";
-      return state.sequence[state.mainIndex];
-    }
+1. Review of the open points from last week
+2. Staffing plan for the December peak
+3. Next steps and responsibilities
 
-    function renderTopbar() {
-      return `
-        <header class="topbar">
-          <div class="brand-lockup">
-            <div class="brand-mark" aria-hidden="true">H</div>
-            <div class="brand-title">Hera Logistics Mail</div>
-          </div>
-          <div class="topbar-meta">
-            <span>Alex Weber</span>
-            <span>alex.weber@heralogistics.com</span>
-          </div>
-        </header>
-      `;
-    }
+I'm happy to prepare the agenda and send it round to everyone by Wednesday afternoon, so you don't need to do anything. Just let me know if you'd like to add something.
 
-    function screenFrame(kicker, title, body, actions) {
-      app.innerHTML = `
-        ${renderTopbar()}
-        <main class="workspace">
-          <section class="screen-card">
-            <div class="screen-header">
-              <div class="screen-kicker">${kicker}</div>
-              <h1>${title}</h1>
-            </div>
-            <div class="screen-body">${body}</div>
-            ${actions ? `<div class="button-row">${actions}</div>` : ""}
-          </section>
-        </main>
-      `;
-    }
+And yes, I haven't forgotten that I still owe you a coffee after last week's printer drama ☕
 
-    function renderSetup() {
-      app.innerHTML = `
-        ${renderTopbar()}
-        <main class="workspace">
-          <section class="screen-card">
-            <div class="screen-header">
-              <div class="screen-kicker">Researcher setup</div>
-              <h1>Email Review Simulation</h1>
-              <p class="muted">Select the assigned condition before the participant begins.</p>
-            </div>
-            <form id="setupForm">
-              <div class="screen-body">
-                <div class="form-grid">
-                  <div class="field">
-                    <label for="groupSelect">Participant Group</label>
-                    <select id="groupSelect" required>
-                      <option value="control">Control Group</option>
-                      <option value="primed">AI-Primed Group</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label for="sequence1">First Email</label>
-                    <select id="sequence1" class="sequence-select" required>
-                      <option value="1">Email 1</option>
-                      <option value="2">Email 2</option>
-                      <option value="3">Email 3</option>
-                      <option value="4">Email 4</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label for="sequence2">Second Email</label>
-                    <select id="sequence2" class="sequence-select" required>
-                      <option value="1">Email 1</option>
-                      <option value="2">Email 2</option>
-                      <option value="3">Email 3</option>
-                      <option value="4">Email 4</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label for="sequence3">Third Email</label>
-                    <select id="sequence3" class="sequence-select" required>
-                      <option value="1">Email 1</option>
-                      <option value="2">Email 2</option>
-                      <option value="3">Email 3</option>
-                      <option value="4">Email 4</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label for="sequence4">Fourth Email</label>
-                    <select id="sequence4" class="sequence-select" required>
-                      <option value="1">Email 1</option>
-                      <option value="2">Email 2</option>
-                      <option value="3">Email 3</option>
-                      <option value="4">Email 4</option>
-                    </select>
-                  </div>
-                </div>
-                <p id="sequenceError" class="muted" role="alert"></p>
-              </div>
-              <div class="button-row">
-                <button type="submit" class="btn">Begin simulation</button>
-              </div>
-            </form>
-          </section>
-        </main>
-      `;
-      document.getElementById("setupForm").addEventListener("submit", (event) => {
-        event.preventDefault();
-        const digits = Array.from(document.querySelectorAll(".sequence-select")).map((select) => select.value);
-        if (new Set(digits).size !== 4) {
-          document.getElementById("sequenceError").textContent = "Please select each email number exactly once.";
-          return;
-        }
-        state.group = document.getElementById("groupSelect").value;
-        state.sequence = digits.map(emailKeyFromDigit);
-        state.screen = "briefing";
-        state.mainIndex = 0;
-        state.completed = [];
-        state.openedEmail = null;
-        state.warmupOpened = false;
-        saveProgress();
+Best, Sophie`,
+    q1: 'What impression did you form of Sophie?',
+    q2: 'Would you rely on what Sophie says or asks in this email?'
+  }
+};
 
-        render();
+/* ─────────────────────────────────────────
+   STATE
+───────────────────────────────────────── */
+const state = {
+  condition: null,   // 'control' | 'ai'
+  order: null,       // e.g. ['E1','E3','E2']
+  mainIndex: 0,
+  promptIndex: 0,
+  openedEmail: null,
+  researcherVisible: false
+};
 
-        try {
-          window.history.replaceState(null, "", window.location.pathname);
-        } catch (error) {}
-      });
-      ["sequence1", "sequence2", "sequence3", "sequence4"].forEach((id, index) => {
-        document.getElementById(id).value = String(index + 1);
-      });
-    }
+function parseOrderDigits(value) {
+  const digits = String(value || '').replace(/[^1-3]/g, '').split('');
+  if (digits.length !== 3 || new Set(digits).size !== 3) return null;
+  return digits.map(d => 'E' + d);
+}
 
-    function renderBriefing() {
-      const aiParagraph = state.group === "primed"
-        ? `<p>Recent developments in workplace communication mean that emails may increasingly be written, assisted, or generated using artificial intelligence technologies. As communication practices evolve, the style and presentation of workplace emails may vary.</p>`
-        : "";
+function normalizeCondition(value) {
+  const v = String(value || '').toLowerCase();
+  if (v === 'control') return 'control';
+  if (v === 'ai' || v === 'ai-awareness') return 'ai';
+  return null;
+}
 
-      screenFrame(
-        "Workplace context",
-        "Organizational Briefing",
-        `
-          <div class="briefing-copy">
-            <p>You are Alex Weber, an Operations Coordinator at Hera Logistics, an international logistics and operations company. Your role is Operations Coordinator. You regularly communicate with internal departments such as Operations, Human Resources, Finance, and IT Support to ensure daily workflows continue smoothly. Your email inbox is typically busy, and most mornings you receive several work-related emails that require coordination, follow-up, or action.</p>
-            <div class="info-list">
-              <div class="info-row"><span class="label">User identity</span><span>Alex Weber</span></div>
-              <div class="info-row"><span class="label">Role</span><span>Operations Coordinator at Hera Logistics</span></div>
-              <div class="info-row"><span class="label">Corporate website</span><span>www.heralogistics.com</span></div>
-              <div class="info-row"><span class="label">Corporate email</span><span>alex.weber@heralogistics.com</span></div>
-            </div>
-            <p>Please approach the inbox as you normally would during a workday.</p>
-            <p><strong>Task:</strong><br>In this task, you will take part in a workplace communication simulation. You will review several emails that may typically appear in your inbox during a workday.</p>
-            ${aiParagraph}
-            <p>As you read each email, please think aloud and describe what you notice, how you interpret the message, and how you decide whether and how you would respond. There are no right or wrong answers. We are interested in how people naturally interpret workplace emails and make sense of them. Please review each email and verbalize your thoughts as clearly as possible.</p>
-          </div>
-        `,
-        `<button class="btn" data-next="thinkaloud">Continue</button>`
-      );
-    }
+/* ─────────────────────────────────────────
+   SETUP SCREEN HELPERS (researcher-only)
+───────────────────────────────────────── */
+function buildUrl() {
+  const g = document.getElementById('sel-group').value;
+  const s = document.getElementById('sel-order').value;
+  const base = window.location.origin + window.location.pathname;
+  return `${base}?g=${g}&s=${s}`;
+}
+function updateLink() {
+  const box = document.getElementById('generated-link');
+  if (box) box.textContent = buildUrl();
+}
+function copyLink() {
+  const url = buildUrl();
+  navigator.clipboard?.writeText(url).catch(() => {});
+  const box = document.getElementById('generated-link');
+  const old = box.textContent;
+  box.textContent = 'Copied: ' + url;
+  setTimeout(() => { box.textContent = old; }, 1500);
+}
+function startFromSetup() {
+  const g = normalizeCondition(document.getElementById('sel-group').value);
+  const s = parseOrderDigits(document.getElementById('sel-order').value);
+  beginSession(g, s);
+}
 
-    function renderThinkAloud() {
-      screenFrame(
-        "Participant instructions",
-        "Think-Aloud Protocol Instructions",
-        `
-          <p>In a moment, you will review a series of consecutive emails arriving in your inbox.</p>
-          <p><strong>What is Expected of You:</strong><br>As you read and evaluate each email, please express your thoughts out loud as they occur.</p>
-          <ul class="instruction-list">
-            <li>What were your initial impressions when you first opened the email?</li>
-            <li>What do you think about the sender, the subject line, or the specific content?</li>
-            <li>What action would you take regarding this email (e.g., reply immediately, delete, postpone for later)?</li>
-          </ul>
-          <p style="margin-top: 18px;">Please approach the emails as naturally as you would during a typical workday and describe your thoughts as they occur. Act naturally, just like a busy employee trying to clear their inbox on a typical, demanding workday. When you are ready, you may proceed to the first email (Warm-up email).</p>
-        `,
-        `<button class="btn secondary" data-next="briefing">Back</button><button class="btn" data-next="practiceIntro">Continue</button>`
-      );
-    }
+/* ─────────────────────────────────────────
+   SESSION START (from URL params or setup)
+───────────────────────────────────────── */
+function beginSession(condition, order) {
+  state.condition = condition;
+  state.order = order;
+  state.mainIndex = 0;
+  state.promptIndex = 0;
+  state.openedEmail = null;
+  document.getElementById('scenario-text').textContent = scenarioText(condition);
+  updateResearcherPanel();
+  showScreen('consent');
+}
 
-    function renderPracticeIntro() {
-      screenFrame(
-        "Practice run",
-        "Practice Email",
-        `
-          <p>Before we begin the main task, you will first review a short practice email. This practice email is intended to help you become familiar with the think-aloud procedure and is not part of the main study. Please approach it in the same way you would approach the later emails and verbalize your thoughts as they occur.</p>
-        `,
-        `<button class="btn secondary" data-next="thinkaloud">Back</button><button class="btn" data-next="warmup">Open practice inbox</button>`
-      );
-    }
+/* ─────────────────────────────────────────
+   SCREEN MANAGEMENT
+───────────────────────────────────────── */
+const SCREEN_IDS = ['screen-setup','screen-consent','screen-warmup1','screen-warmup2','screen-scenario','screen-instructions','screen-inbox','screen-prompted','screen-closing'];
 
-    function renderWarmup() {
-      renderMailShell({
-        mode: "warmup",
-        title: "Practice Inbox",
-        unreadCount: state.warmupOpened ? 0 : 1,
-        primaryEmail: warmupEmail,
-        selectedEmail: state.openedEmail === "P1" ? warmupEmail : null
-      });
-    }
+function showScreen(name) {
+  SCREEN_IDS.forEach(id => document.getElementById(id).classList.add('hidden'));
+  document.getElementById('screen-' + name).classList.remove('hidden');
+  updateResearcherPanel();
+}
 
-    function renderTransition() {
-      screenFrame(
-        "Main task transition",
-        "Thank you. We will now begin the main task.",
-        `
-          <p>The following emails are part of the workplace email simulation. Please continue to verbalize your thoughts as you review each message.</p>
-        `,
-        `<button class="btn" data-next="mainInbox">Begin main task</button>`
-      );
-    }
+/* ─────────────────────────────────────────
+   MAIN INBOX
+───────────────────────────────────────── */
+function startMainTask() {
+  state.mainIndex = 0;
+  state.openedEmail = null;
+  renderInbox();
+  showScreen('inbox');
+}
 
-    function renderMainInbox() {
-      const currentId = currentExperimentalId();
-      if (currentId === "Complete") {
-        setScreen("debrief");
-        return;
-      }
-      const email = experimentalEmails[currentId];
-      renderMailShell({
-        mode: "main",
-        title: "Inbox",
-        unreadCount: 1,
-        primaryEmail: email,
-        selectedEmail: state.openedEmail === currentId ? email : null
-      });
-    }
+function currentEmailId() {
+  if (!state.order || state.mainIndex >= state.order.length) return null;
+  return state.order[state.mainIndex];
+}
 
-    function renderMailShell({ mode, title, unreadCount, primaryEmail, selectedEmail }) {
-      const primaryRead = mode === "warmup" && state.warmupOpened;
-      const primaryButton = `
-        <button class="email-item ${selectedEmail ? "active" : ""} ${primaryRead ? "read" : ""}" data-open="${primaryEmail.id}">
-          <span>
-            <span class="email-sender">${primaryEmail.sender}</span>
-            <span class="email-subject">${primaryEmail.subject}</span>
-            <span class="email-snippet">${snippet(primaryEmail.content)}</span>
-          </span>
-          <span class="status-dot ${primaryRead ? "read" : ""}" aria-hidden="true"></span>
-        </button>
-      `;
-      const fillers = fillerEmails.map(([sender, subject, body]) => `
-        <button class="email-item filler read" type="button" aria-disabled="true">
-          <span>
-            <span class="email-sender">${sender}</span>
-            <span class="email-subject">${subject}</span>
-            <span class="email-snippet">${body}</span>
-          </span>
-          <span class="status-dot read" aria-hidden="true"></span>
-        </button>
-      `).join("");
+function renderInbox() {
+  const listEl = document.getElementById('email-list-body');
+  const pipsEl = document.getElementById('progress-pips');
+  const countEl = document.getElementById('list-count');
+  listEl.innerHTML = '';
+  closeReadingPane();
 
-      app.innerHTML = `
-        ${renderTopbar()}
-        <main class="mail-shell">
-          <aside class="mail-sidebar">
-            <div class="folder-header">
-              <div class="folder-title">
-                <span>${title}</span>
-                <span class="unread-pill">${unreadCount}</span>
-              </div>
-              <div class="folder-subtitle">${mode === "main" ? "Routine messages and current unread email" : "Practice email review"}</div>
-            </div>
-            <div class="email-list">
-              ${primaryButton}
-              ${mode === "main" ? fillers : ""}
-            </div>
-          </aside>
-          <section class="reading-pane">
-            ${selectedEmail ? renderMessage(selectedEmail, mode) : renderEmptyPane(mode)}
-          </section>
-        </main>
-      `;
-    }
+  renderPips(pipsEl);
+  countEl.textContent = `${state.mainIndex + 1} of 3 — 1 unread`;
 
-    function renderMessage(email, mode) {
-      return `
-        <div class="pane-toolbar">
-          <div class="pane-toolbar-title">${email.subject}</div>
-          <button class="btn secondary" data-back-inbox="${mode}">Back to Inbox</button>
+  const currentId = currentEmailId();
+  if (!currentId) return;
+
+  // Already-read emails first (in the order they were read), then the current unread one.
+  for (let i = 0; i < state.mainIndex; i++) {
+    listEl.appendChild(makeEmailRow(EMAILS[state.order[i]], false));
+  }
+  listEl.appendChild(makeEmailRow(EMAILS[currentId], true));
+}
+
+function renderPips(container) {
+  container.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'progress-pip' + (i < state.mainIndex ? ' done' : '') + (i === state.mainIndex ? ' active' : '');
+    container.appendChild(pip);
+  }
+}
+
+function makeEmailRow(email, unread) {
+  const row = document.createElement('div');
+  row.className = 'email-row' + (unread ? ' unread' : ' read disabled');
+  row.dataset.id = email.id;
+  if (unread) {
+    const dot = document.createElement('div');
+    dot.className = 'unread-dot';
+    row.appendChild(dot);
+  }
+  row.innerHTML += `
+    <div class="email-row-top">
+      <div class="email-sender" style="padding-left:${unread?'10':'0'}px">${email.sender}</div>
+      <div class="email-time">${email.time}</div>
+    </div>
+    <div class="email-subject" style="padding-left:${unread?'10':'0'}px">${email.subject}</div>
+    <div class="email-preview" style="padding-left:${unread?'10':'0'}px">${email.preview}</div>
+  `;
+  if (unread) row.addEventListener('click', () => openEmail(email.id));
+  return row;
+}
+
+function openEmail(emailId) {
+  state.openedEmail = emailId;
+  const email = EMAILS[emailId];
+  document.querySelectorAll('.email-row').forEach(r => r.classList.remove('selected'));
+  const row = document.querySelector(`.email-row[data-id="${emailId}"]`);
+  if (row) row.classList.add('selected');
+
+  document.getElementById('reading-empty').classList.add('hidden');
+  const wrap = document.getElementById('reading-content-wrap');
+  wrap.classList.remove('hidden');
+  wrap.style.display = 'flex';
+
+  const content = document.getElementById('reading-content');
+  const initial = email.sender.charAt(0).toUpperCase();
+  content.innerHTML = `
+    <div class="email-header-block">
+      <div class="email-subject-line">${escapeHtml(email.subject)}</div>
+      <div class="email-meta-row">
+        <div class="email-avatar-lg">${initial}</div>
+        <div class="email-meta-details">
+          <div class="email-from-name">${escapeHtml(email.sender)}, ${escapeHtml(email.role)}</div>
+          <div class="email-from-addr">&lt;${escapeHtml(email.from)}&gt;</div>
+          <div class="email-to-line">To: alex.weber@heralogistics.com</div>
         </div>
-        <article class="message">
-          <div class="message-meta">
-            <h2 class="message-subject">${email.subject}</h2>
-            <div class="message-line"><strong>From:</strong><span>${email.sender}</span></div>
-            <div class="message-line"><strong>To:</strong><span>Alex Weber &lt;alex.weber@heralogistics.com&gt;</span></div>
-          </div>
-          <div class="message-body">${formatEmailContent(email.content)}</div>
-        </article>
-      `;
-    }
+        <div class="email-date-line">Today, ${email.time}</div>
+      </div>
+    </div>
+    <div class="email-body-text">${escapeHtml(email.body)}</div>
+  `;
+  document.getElementById('btn-next-email').onclick = () => advanceInbox();
+}
 
-    function renderEmptyPane(mode) {
-      return `
-        <div class="empty-pane">
-          <div class="empty-pane-inner">
-            <h2>${mode === "main" ? "Select the unread email" : "Select the practice email"}</h2>
-            <p>Open the message from the inbox list to begin reviewing it.</p>
-          </div>
-        </div>
-      `;
-    }
+function closeReadingPane() {
+  document.getElementById('reading-empty').classList.remove('hidden');
+  const wrap = document.getElementById('reading-content-wrap');
+  wrap.style.display = '';
+  wrap.classList.add('hidden');
+}
 
-    function renderDebrief() {
-      const primedQuestion = state.group === "primed"
-        ? `<li>At the beginning of the session, you read a brief note about the increasing use of artificial intelligence in workplace communication. To what extent, if at all, did you think about or look for signs of artificial intelligence while reviewing these specific emails?</li>`
-        : "";
+function advanceInbox() {
+  state.mainIndex++;
+  state.openedEmail = null;
+  if (state.mainIndex >= state.order.length) {
+    state.promptIndex = 0;
+    renderPrompted();
+    showScreen('prompted');
+    return;
+  }
+  renderInbox();
+  updateResearcherPanel();
+}
 
-      screenFrame(
-        "Post-task reflection",
-        "Reflection & Debriefing Questions",
-        `
-          <div class="question-copy">
-            <p>Please answer the following questions verbally for the researcher.</p>
-            <ul class="question-list">
-              <li>Looking back at all of the emails you reviewed, what factors influenced your judgments and decisions the most?</li>
-              <li>Was there any email that you found particularly trustworthy or particularly suspicious? Why?</li>
-              <li>Is there anything else you noticed during the task that influenced the way you evaluated the emails?</li>
-              ${primedQuestion}
-            </ul>
-            <div class="debrief-box">
-              <strong>Ethical debrief:</strong>
-              <p>This task included simulated phishing emails and diverse communication styles for research purposes. Among the messages you reviewed, the email with the subject 'Urgent: Verify Your Mailbox Access' was designed as a traditional phishing simulation. Furthermore, the email with the subject 'Action Required: Updated Access Authentication Process' was a highly polished, AI-generated phishing simulation. Furthermore, some emails were also intentionally written to reflect different styles of workplace communication, including AI-assisted and AI-generated communication. The links provided were mock links only; no information was collected, submitted, or transmitted. The purpose of these simulations is to study how people interpret workplace emails and make sense of them under email overload in a controlled research setting.</p>
-            </div>
-          </div>
-        `
-      );
-    }
+/* ─────────────────────────────────────────
+   PROMPTED ACCOUNTS (after the third email)
+───────────────────────────────────────── */
+function renderPrompted() {
+  const id = state.order[state.promptIndex];
+  const email = EMAILS[id];
+  document.getElementById('prompted-counter').textContent = `Email ${state.promptIndex + 1} of 3`;
+  document.getElementById('prompted-subject').textContent = email.subject;
+  document.getElementById('prompted-from').textContent = `${email.sender}, ${email.role}`;
+  document.getElementById('prompted-body').textContent = email.body;
+  document.getElementById('prompted-q1').textContent = email.q1;
+  document.getElementById('prompted-q2').textContent = email.q2;
+  document.getElementById('prompted-next-btn').textContent =
+    state.promptIndex === state.order.length - 1 ? 'Continue to closing questions →' : 'Next email →';
+}
 
-    function snippet(content) {
-      return content.replace(/\[\[LINK:.*?\|(.*?)\]\]/g, "$1").replace(/\s+/g, " ").trim().slice(0, 88);
-    }
+function advancePrompt() {
+  if (state.promptIndex < state.order.length - 1) {
+    state.promptIndex++;
+    renderPrompted();
+  } else {
+    showScreen('closing');
+  }
+}
 
-    function escapeHtml(value) {
-      return value
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
+/* ─────────────────────────────────────────
+   RESEARCHER PANEL
+───────────────────────────────────────── */
+function toggleResearcherPanel() {
+  state.researcherVisible = !state.researcherVisible;
+  document.getElementById('researcher-panel').style.display = state.researcherVisible ? 'block' : 'none';
+}
+function updateResearcherPanel() {
+  document.getElementById('rp-group').textContent = state.condition ? (state.condition === 'ai' ? 'AI-awareness' : 'Control') : '—';
+  document.getElementById('rp-order').textContent = state.order ? state.order.map(e => e.replace('E','')).join('-') : '—';
+  const visibleScreen = SCREEN_IDS.find(id => !document.getElementById(id).classList.contains('hidden'));
+  document.getElementById('rp-phase').textContent = visibleScreen ? visibleScreen.replace('screen-', '') : '—';
+}
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'r') {
+    e.preventDefault();
+    toggleResearcherPanel();
+  }
+});
 
-    function formatEmailContent(content) {
-      const escaped = escapeHtml(content);
-      return escaped.replace(/\[\[LINK:(.*?)\|(.*?)\]\]/g, (_, url, text) => {
-        return `<a href="#" class="message-link" data-mock-link="${url}">${text}</a>`;
-      });
-    }
+/* ─────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────── */
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
 
-    function openEmail(id) {
-      state.openedEmail = id;
-      if (id === "P1") state.warmupOpened = true;
-      saveProgress();
-      render();
-    }
-
-    function backToInbox(mode) {
-      if (mode === "warmup") {
-        setScreen("transition");
-        return;
-      }
-      const currentId = currentExperimentalId();
-      if (state.openedEmail === currentId) {
-        state.completed.push(currentId);
-        state.mainIndex += 1;
-      }
-      state.openedEmail = null;
-      if (state.mainIndex >= state.sequence.length) {
-        setScreen("debrief");
-      } else {
-        setScreen("mainInbox");
-      }
-    }
-
-    function openMockPage(url) {
-      mockAddress.textContent = url;
-      mockModal.classList.add("visible");
-      closeModal.focus();
-    }
-
-    function updateResearchPanel() {
-      const currentId = currentExperimentalId();
-      const condition = experimentalEmails[currentId]?.condition || "None";
-      const number = state.screen === "mainInbox" ? `${Math.min(state.mainIndex + 1, 4)} of 4` : "Not in main task";
-      const groupLabel = state.group === "primed" ? "Primed" : state.group === "control" ? "Control" : "None";
-      const orderLabel = state.sequence.length ? sequenceCode() : "None";
-
-      researchPanel.innerHTML = `G: ${groupLabel} | N: ${number} | C: ${currentId}${condition !== "None" ? " / " + condition : ""} | O: ${orderLabel} <button class="research-reset-btn" id="resetSystemBtn">[Reset System]</button>`;
-      researchPanel.classList.toggle("visible", state.researcherVisible);
-    }
-
-    function resetSimulation() {
-      try { sessionStorage.removeItem("heraEmailSimulation"); } catch (error) {}
-      window.location.href = window.location.pathname + "?mode=researcher";
-    }
-
-    function prepareManualStartup() {
-      Object.assign(state, {
-        screen: "setup",
-        group: null,
-        sequence: [],
-        mainIndex: 0,
-        openedEmail: null,
-        completed: [],
-        researcherVisible: false,
-        warmupOpened: false
-      });
-    }
-
-    function render() {
-      if (state.screen === "setup") renderSetup();
-      if (state.screen === "briefing") renderBriefing();
-      if (state.screen === "thinkaloud") renderThinkAloud();
-      if (state.screen === "practiceIntro") renderPracticeIntro();
-      if (state.screen === "warmup") renderWarmup();
-      if (state.screen === "transition") renderTransition();
-      if (state.screen === "mainInbox") renderMainInbox();
-      if (state.screen === "debrief") renderDebrief();
-      updateResearchPanel();
-    }
-
-    document.addEventListener("click", (event) => {
-      const next = event.target.closest("[data-next]");
-      if (next) {
-        setScreen(next.dataset.next);
-        return;
-      }
-
-      const openButton = event.target.closest("[data-open]");
-      if (openButton) {
-        openEmail(openButton.dataset.open);
-        return;
-      }
-
-      const backButton = event.target.closest("[data-back-inbox]");
-      if (backButton) {
-        backToInbox(backButton.dataset.backInbox);
-        return;
-      }
-
-      const mockLink = event.target.closest("[data-mock-link]");
-      if (mockLink) {
-        event.preventDefault();
-        openMockPage(mockLink.dataset.mockLink);
-        return;
-      }
-
-      if (event.target.closest("#resetSimulation") || event.target.closest(".research-reset-btn")) {
-        resetSimulation();
-      }
-    });
-
-    document.addEventListener("keydown", (event) => {
-      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "r") {
-        event.preventDefault();
-        state.researcherVisible = !state.researcherVisible;
-        saveProgress();
-        updateResearchPanel();
-      }
-      if (event.key === "Escape" && mockModal.classList.contains("visible")) {
-        mockModal.classList.remove("visible");
-      }
-    });
-
-    closeModal.addEventListener("click", () => {
-      mockModal.classList.remove("visible");
-    });
-
-    mockModal.addEventListener("click", (event) => {
-      if (event.target === mockModal) mockModal.classList.remove("visible");
-    });
-
-    window.onload = function () {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("mode") === "researcher") {
-        try { sessionStorage.removeItem("heraEmailSimulation"); } catch (error) {}
-        prepareManualStartup();
-        render();
-      } else {
-        loadProgress();
-        const hasValidSession = state.group && state.sequence && state.sequence.length === 4;
-        
-        const groupParam = normalizeGroup(params.get("g"));
-        const sequenceParam = parseSequence(params.get("s"));
-        const hasUrlParams = groupParam && sequenceParam;
-
-        if (hasUrlParams) {
-          initializeFromUrl();
-        } else if (hasValidSession) {
-          // Retain session
-        } else {
-          Object.assign(state, {
-            screen: "briefing",
-            group: "control",
-            sequence: ["Email 1", "Email 2", "Email 3", "Email 4"],
-            mainIndex: 0,
-            openedEmail: null,
-            completed: [],
-            researcherVisible: false,
-            warmupOpened: false
-          });
-          saveProgress();
-        }
-        render();
-      }
-    };
-  </script>
+/* ─────────────────────────────────────────
+   INIT — if the URL carries g= and s=, skip
+   straight to consent (this is what a real
+   participant's link will do). Otherwise show
+   the researcher-only setup screen.
+───────────────────────────────────────── */
+window.onload = function () {
+  const params = new URLSearchParams(window.location.search);
+  const condition = normalizeCondition(params.get('g'));
+  const order = parseOrderDigits(params.get('s'));
+  updateLink();
+  if (condition && order) {
+    beginSession(condition, order);
+  } else {
+    showScreen('setup');
+  }
+};
+</script>
 </body>
 </html>
