@@ -662,8 +662,15 @@ function parseOrderDigits(value) {
   return digits.map(d => 'E' + d);
 }
 
+// Opaque, non-suggestive codes used ONLY in the URL, so that a participant
+// glancing at the address bar cannot tell which condition they are in.
+// The mapping below is the single place this correspondence is written down.
+const CONDITION_TO_URL_CODE = { control: 'p1', ai: 'p2' };
+const URL_CODE_TO_CONDITION = { p1: 'control', p2: 'ai' };
+
 function normalizeCondition(value) {
   const v = String(value || '').toLowerCase();
+  if (URL_CODE_TO_CONDITION[v]) return URL_CODE_TO_CONDITION[v];
   if (v === 'control') return 'control';
   if (v === 'ai' || v === 'ai-awareness') return 'ai';
   return null;
@@ -673,7 +680,7 @@ function normalizeCondition(value) {
    SETUP SCREEN HELPERS (researcher-only)
 ───────────────────────────────────────── */
 function buildUrl() {
-  const g = document.getElementById('sel-group').value;
+  const g = CONDITION_TO_URL_CODE[document.getElementById('sel-group').value];
   const s = document.getElementById('sel-order').value;
   const base = window.location.origin + window.location.pathname;
   return `${base}?g=${g}&s=${s}`;
